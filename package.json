@@ -11,8 +11,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.27.2",
     "cheerio": "^1.0.0-rc.10",
     "node-fetch": "^3.2.4",
-    "puppeteer": "^14.1.0"
+    "pretty": "^2.0.0",
+    "puppeteer": "^14.1.0",
+    "replace-in-file": "^6.3.2"
   }
 }
