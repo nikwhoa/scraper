@@ -3,6 +3,13 @@ import * as cheerio from 'cheerio';
 import pretty from 'pretty';
 import fs, { writeFile } from 'fs';
 import replace from 'replace-in-file';
+import { join, dirname, resolve } from 'path'
+import { Low, JSONFile } from 'lowdb'
+import { fileURLToPath } from 'url'
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+
 
 let news = []
 
@@ -22,11 +29,9 @@ async function getNewsUrls() {
     }
 }
 
-const options = {
-    files: 'foxnews.json'
-}
 
-function building(news, title, subTitle, content, callback) {
+
+function building(news, title, subTitle, content) {
     if (title.length > 0 && subTitle.length > 0) {
 
         return news.push({
@@ -35,7 +40,7 @@ function building(news, title, subTitle, content, callback) {
             content
         })
     }
-    callback(news)
+    // callback(news)
 }
 
 function write(data) {
@@ -52,8 +57,8 @@ function write(data) {
 // fs.writeFile('foxnews.json', JSON.stringify({title, subTitle, content}, null, 2), (err, data) => err ? console.log(err) : console.log('saved'))
 
 
-const getNews = async () => {
-
+const getNews = new Promise (async () => {
+    console.log('Getting news urls...')
     const urlsBase = await getNewsUrls()
     let urls = []
     urlsBase.forEach(el => {
@@ -72,17 +77,39 @@ const getNews = async () => {
             const subTitle = $('.sub-headline').text()
             const content = $('.article-body').html()
             const html = content != null ? content.replace(/"/g, '\'') : ''
-
-            building(news, title, subTitle, html, write)
-
-
+            building(news, title, subTitle, html)
         } catch (error) {
             console.error(error)
         }
     })
-}
+
+    console.log(readyUrl);
+})
 
 
-getNews()
+// const doo = async () => {
+//     const file = join(__dirname, 'db.json')
+//     const adapter = new JSONFile(file)
+//     const db = new Low(adapter)
+
+//     await db.read()
+//     db.data = []
+
+//     db.data.posts.push(news)
+
+//     await db.write()
+// }
+
+getNews.then(() => {
+    console.log('done');
+})
 
 
+// let promise = new Promise(function(resolve, reject) {
+//     getNews()
+// })
+
+// promise.then(() => {
+//     console.log(news)
+// }).catch(err => console.log(err));
+// logger()
