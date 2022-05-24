@@ -13,6 +13,7 @@
   "dependencies": {
     "axios": "^0.27.2",
     "cheerio": "^1.0.0-rc.10",
+    "jstoxml": "^3.2.3",
     "lowdb": "^3.0.0",
     "node-fetch": "^3.2.4",
     "pretty": "^2.0.0",
