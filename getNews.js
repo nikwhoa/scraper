@@ -5,7 +5,8 @@ import { Low, JSONFile } from 'lowdb';
 import { fileURLToPath } from 'url';
 import getNewsUrls from './components/getUrls.js';
 import changeUrls from './components/changeUrls.js';
-import toXML from 'jstoxml';
+import convert from 'xml-js';
+import fs from 'fs';
 
 // create and connect to database
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -56,7 +57,7 @@ let gettingNews = new Promise((resolve, reject) => {
                 newNews.push({
                     title: titleNews,
                     subTitle: subTitle,
-                    content: formatHtml(html),
+                    content: formatHtml(html)
                 });
             }
         }
@@ -64,18 +65,55 @@ let gettingNews = new Promise((resolve, reject) => {
         return newNews;
     })
     .then(async (data) => {
-        let { news } = db.data;
 
-        if (news.length <= 0) {
-            news.push(...data);
+        console.log(data);
+
+        let { item } = db.data;
+
+        if (item.length <= 0) {
+            item.push(...data);
             await db.write();
         } else {
-            data.forEach((item) => {
-                if (!news.find((news) => news.title === item.title)) {
-                    news.push(item);
+            data.forEach((items) => {
+                if (!item.find((news) => news.title === items.title)) {
+                    item.push(items);
                 }
             });
             await db.write();
         }
+    })
+    .then(() => {
+        const data = db.data.news;
+        let xml = `
+        <?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	    xmlns:content="http://purl.org/rss/1.0/modules/content/"
+        xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:atom="http://www.w3.org/2005/Atom"
+        xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+        xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+        >
+        <channel>
+        <title>Business Matters</title>
+        <atom:link href="https://bmmagazine.co.uk/feed/" rel="self" type="application/rss+xml" />
+        <link>https://bmmagazine.co.uk</link>
+        <description>UK&#039;s leading SME business magazine</description>
+        <lastBuildDate>Tue, 24 May 2022 13:20:10 +0000</lastBuildDate>
+        <language>en-GB</language>
+        <sy:updatePeriod>hourly</sy:updatePeriod>
+        <sy:updateFrequency>1</sy:updateFrequency>
+        <generator>https://wordpress.org/?v=5.9.3</generator>
+        `;
+        let json = fs.readFileSync('./dataBase/db.json', 'utf8');
+        let options = {
+            compact: true,
+            ignoreComment: true,
+            spaces: 4,
+        };
+        let result = convert.json2xml(json, options);
+        fs.writeFile('./dataBase/rss.xml', xml+result+'</chanel></rss>', (err) => {
+            if (err) throw err;
+            console.log('Saved!');
+        });
     })
     .then(() => console.log('done'));
