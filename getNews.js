@@ -56,8 +56,11 @@ let gettingNews = new Promise((resolve, reject) => {
             if (titleNews.length > 0 && subTitle.length > 0) {
                 newNews.push({
                     title: titleNews,
-                    subTitle: subTitle,
-                    content: formatHtml(html)
+                    link: item,
+                    pubDate: new Date(),
+                    category: 'Rss Test',
+                    description: `<![CDATA[${formatHtml(html)}]]>`,
+                    // "content:encoded": `<![CDATA[${formatHtml(html)}]]>`,
                 });
             }
         }
@@ -66,7 +69,7 @@ let gettingNews = new Promise((resolve, reject) => {
     })
     .then(async (data) => {
 
-        console.log(data);
+
 
         let { item } = db.data;
 
@@ -81,37 +84,47 @@ let gettingNews = new Promise((resolve, reject) => {
             });
             await db.write();
         }
+
+        return item
     })
     .then(() => {
-        const data = db.data.news;
-        let xml = `
-        <?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
-	    xmlns:content="http://purl.org/rss/1.0/modules/content/"
+        // const data = db.data.news;
+        let xml = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+        xmlns:content="http://purl.org/rss/1.0/modules/content/"
         xmlns:wfw="http://wellformedweb.org/CommentAPI/"
         xmlns:dc="http://purl.org/dc/elements/1.1/"
         xmlns:atom="http://www.w3.org/2005/Atom"
         xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
         xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
         >
-        <channel>
-        <title>Business Matters</title>
-        <atom:link href="https://bmmagazine.co.uk/feed/" rel="self" type="application/rss+xml" />
-        <link>https://bmmagazine.co.uk</link>
-        <description>UK&#039;s leading SME business magazine</description>
-        <lastBuildDate>Tue, 24 May 2022 13:20:10 +0000</lastBuildDate>
-        <language>en-GB</language>
-        <sy:updatePeriod>hourly</sy:updatePeriod>
-        <sy:updateFrequency>1</sy:updateFrequency>
-        <generator>https://wordpress.org/?v=5.9.3</generator>
-        `;
+
+    <channel>
+        <title>FOX NEWS US</title>
+        <atom:link href="https://www.foxnews.com/us" rel="self" type="application/rss+xml" />
+        <link>https://www.foxnews.com/us</link>
+        <description>Where Hope Finally Made a Comeback</description>
+        <lastBuildDate>Wed, 25 May 2022 06:01:07 +0000</lastBuildDate>
+        <language>en-US</language>
+        <sy:updatePeriod>
+        hourly	</sy:updatePeriod>
+        <sy:updateFrequency>
+        1	</sy:updateFrequency>
+        <generator>https://wordpress.org/?v=5.8.4</generator>`;
+
+
         let json = fs.readFileSync('./dataBase/db.json', 'utf8');
+
+        // let json = data
         let options = {
             compact: true,
-            ignoreComment: true,
+            ignoreComment: false,
+            ignoreText: false,
             spaces: 4,
+            indentAttributes: true,
+            indentCdata: true,
         };
         let result = convert.json2xml(json, options);
-        fs.writeFile('./dataBase/rss.xml', xml+result+'</chanel></rss>', (err) => {
+        fs.writeFile('./dataBase/rss.xml', xml+result+'</channel></rss>', (err) => {
             if (err) throw err;
             console.log('Saved!');
         });
