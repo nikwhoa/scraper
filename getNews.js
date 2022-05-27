@@ -39,8 +39,11 @@ let gettingNews = new Promise((resolve, reject) => {
             $('.featured-video').remove();
             $('.speechkit-wrapper').remove();
             $('.ad-container').remove();
+            $('.caption').remove();
             $('.contain').remove();
+            $('.featured-image').remove();
             $('p:contains("CLICK HERE TO GET THE FOX NEWS APP")').remove();
+            $('p:contains("CLICK HERE FOR THE FOX NEWS APP")').remove();
 
             const content = $('.article-body').html();
             const html = content != null ? content.replace(/"/g, "'") : '';
@@ -59,7 +62,7 @@ let gettingNews = new Promise((resolve, reject) => {
                     link: item,
                     pubDate: new Date(),
                     category: 'Rss Test',
-                    description: `<![CDATA[${formatHtml(html)}]]>`,
+                    description: formatHtml(html),
                     // "content:encoded": `<![CDATA[${formatHtml(html)}]]>`,
                 });
             }
@@ -103,7 +106,7 @@ let gettingNews = new Promise((resolve, reject) => {
         <atom:link href="https://www.foxnews.com/us" rel="self" type="application/rss+xml" />
         <link>https://www.foxnews.com/us</link>
         <description>Where Hope Finally Made a Comeback</description>
-        <lastBuildDate>Wed, 25 May 2022 06:01:07 +0000</lastBuildDate>
+        <lastBuildDate>${new Date()}</lastBuildDate>
         <language>en-US</language>
         <sy:updatePeriod>
         hourly	</sy:updatePeriod>
@@ -124,7 +127,7 @@ let gettingNews = new Promise((resolve, reject) => {
             indentCdata: true,
         };
         let result = convert.json2xml(json, options);
-        fs.writeFile('./dataBase/rss.xml', xml+result+'</channel></rss>', (err) => {
+        fs.writeFile('../public_html/rss.xml', xml+result+'</channel></rss>', (err) => {
             if (err) throw err;
             console.log('Saved!');
         });
