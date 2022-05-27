@@ -8,6 +8,10 @@ import changeUrls from './components/changeUrls.js';
 import convert from 'xml-js';
 import fs from 'fs';
 
+
+
+
+
 // create and connect to database
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const file = join(__dirname, './dataBase/db.json');
@@ -133,3 +137,5 @@ let gettingNews = new Promise((resolve, reject) => {
         });
     })
     .then(() => console.log('done'));
+
+export default gettingNews

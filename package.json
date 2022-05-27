@@ -16,6 +16,7 @@
     "jstoxml": "^3.2.3",
     "lowdb": "^3.0.0",
     "node-fetch": "^3.2.4",
+    "node-schedule": "^2.1.0",
     "pretty": "^2.0.0",
     "replace-in-file": "^6.3.2",
     "xml-js": "^1.6.11"
