@@ -19,7 +19,7 @@ const adapter = new JSONFile(file);
 const db = new Low(adapter);
 await db.read();
 
-let gettingNews = new Promise((resolve, reject) => {
+export let gettingNews = new Promise((resolve, reject) => {
     const data = getNewsUrls(
         'https://www.foxnews.com/us',
         '.collection.collection-article-list > div.content.article-list > article.article > div.m > a'
@@ -96,6 +96,7 @@ let gettingNews = new Promise((resolve, reject) => {
     })
     .then(() => {
         // const data = db.data.news;
+
         let xml = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
         xmlns:content="http://purl.org/rss/1.0/modules/content/"
         xmlns:wfw="http://wellformedweb.org/CommentAPI/"
@@ -119,7 +120,8 @@ let gettingNews = new Promise((resolve, reject) => {
         <generator>https://wordpress.org/?v=5.8.4</generator>`;
 
 
-        let json = fs.readFileSync('./dataBase/db.json', 'utf8');
+
+        let json = fs.readFileSync('./home/godzillanewz/nodejsapp/dataBase/db.json', 'utf8');
 
         // let json = data
         let options = {
@@ -130,12 +132,16 @@ let gettingNews = new Promise((resolve, reject) => {
             indentAttributes: true,
             indentCdata: true,
         };
+
+
+
         let result = convert.json2xml(json, options);
-        fs.writeFile('../public_html/rss.xml', xml+result+'</channel></rss>', (err) => {
+
+        fs.writeFile('./home/godzillanewz/public_html/rss.xml', xml+result+'</channel></rss>', (err) => {
             if (err) throw err;
             console.log('Saved!');
         });
-    })
-    .then(() => console.log('done'));
 
-export default gettingNews
+        return result
+
+    });
