@@ -36,6 +36,7 @@ export let gettingNews = new Promise((resolve, reject) => {
             $('.db-ns').remove();
             $('iframe').remove();
             $('.hide-for-print').remove();
+            $('.pb-sm.pt-lgmod').remove();
             $('span a:contains("Sign up")').remove();
 
             const description = $('.grid-body')
@@ -59,7 +60,7 @@ export let gettingNews = new Promise((resolve, reject) => {
                     link: item,
                     pubDate: new Date(),
                     category: 'Washington Post Politics',
-                    description: description,
+                    description: `<img srcset='${image}' />${description}`,
                 });
             }
         }
