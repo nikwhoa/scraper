@@ -31,6 +31,11 @@ export let gettingNews = new Promise((resolve, reject) => {
             const titleNews = $('h1 > span').text();
             const image = $('article img').attr('srcset'); // todo: check what to pass
 
+
+
+
+
+
             // todo: remove elements here
             $('.dn-ns').remove();
             $('.db-ns').remove();
@@ -54,13 +59,24 @@ export let gettingNews = new Promise((resolve, reject) => {
             //     return data;
             // };
 
-            if (titleNews.length > 0 && description.length > 0) {
+            if (titleNews.length > 0 && description.length > 0 && image !== undefined) {
+                let aaa = image.replace(/ /g, '')
+                let b = ''
+                for (let i = 0; i < aaa.length; i++) {
+                    if (aaa[i] == '&') {
+                        // console.log(image.slice(0, i));
+                        b = aaa.slice(0, i)
+                    }
+                }
+
+
+
                 newNews.push({
                     title: titleNews,
                     link: item,
                     pubDate: new Date(),
                     category: 'Washington Post Politics',
-                    description: `<img srcset='${image}' />${description}`,
+                    description: `<img src='${b}' />${description}`,
                 });
             }
         }
@@ -98,8 +114,8 @@ export let gettingNews = new Promise((resolve, reject) => {
         <lastBuildDate>${new Date()}</lastBuildDate>`;
 
         let json = fs.readFileSync(
-            // './home/godzillanewz/nodejsapp/dataBase/db.json',
-            './dataBase/washingtonpost.json',
+            '/home/godzillanewz/nodejsapp/dataBase/washingtonpost.json',
+            // './dataBase/washingtonpost.json',
             'utf8'
         );
 
@@ -116,7 +132,7 @@ export let gettingNews = new Promise((resolve, reject) => {
         let result = convert.json2xml(json, options);
 
         fs.writeFile(
-            './washingtonpost-rss.xml',
+            '/home/godzillanewz/public_html/washingtonpost-rss.xml',
             xml + result + '</channel></rss>',
             (err) => {
                 if (err) throw err;

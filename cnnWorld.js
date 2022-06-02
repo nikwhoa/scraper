@@ -57,7 +57,7 @@ let gettingNews = new Promise(async (resolve, reject) => {
         let newNews = [];
         const urls = data.filter((el) => el != null);
 
-        
+
 
         const browser = await puppeteer.launch();
 
@@ -144,7 +144,7 @@ let gettingNews = new Promise(async (resolve, reject) => {
 
         let json = fs.readFileSync(
             // './home/godzillanewz/nodejsapp/dataBase/db.json',
-            './dataBase/cnnWorldDB.json',
+            './home/godzillanewz/nodejsapp/dataBase/cnnWorldDB.json',
             'utf8'
         );
 
@@ -162,7 +162,7 @@ let gettingNews = new Promise(async (resolve, reject) => {
 
         fs.writeFile(
             // './home/godzillanewz/public_html/rss.xml',
-            './cnnWorldDBrss.xml',
+            './home/godzillanewz/public_html/cnnWorldDBrss.xml',
             xml + result + '</channel></rss>',
             (err) => {
                 if (err) throw err;
