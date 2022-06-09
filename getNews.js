@@ -121,7 +121,7 @@ export let gettingNews = new Promise((resolve, reject) => {
 
 
 
-        let json = fs.readFileSync('./home/godzillanewz/nodejsapp/dataBase/db.json', 'utf8');
+        let json = fs.readFileSync('/home/godzillanewz/nodejsapp/dataBase/db.json', 'utf8');
 
         // let json = data
         let options = {
@@ -137,7 +137,7 @@ export let gettingNews = new Promise((resolve, reject) => {
 
         let result = convert.json2xml(json, options);
 
-        fs.writeFile('./home/godzillanewz/public_html/rss.xml', xml+result+'</channel></rss>', (err) => {
+        fs.writeFile('/home/godzillanewz/public_html/rss.xml', xml+result+'</channel></rss>', (err) => {
             if (err) throw err;
             console.log('Saved!');
         });
