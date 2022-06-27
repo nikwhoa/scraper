@@ -106,12 +106,12 @@ let gettingNews = new Promise(async (resolve, reject) => {
         let { item } = db.data;
 
         if (item.length <= 0) {
-            item.push(...data);
+            item.unshift(...data);
             await db.write();
         } else {
             data.forEach((items) => {
                 if (!item.find((news) => news.title === items.title)) {
-                    item.push(items);
+                    item.unshift(...data);
                 }
             });
             await db.write();

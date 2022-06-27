@@ -1,6 +1,6 @@
 import http from 'http';
 import childProcess from 'child_process';
-const hostname = '127.0.0.1';
+const hostname = 'godzillanewz.com';
 const port = 3000;
 
 const server = http.createServer((req, res) => {
@@ -43,11 +43,6 @@ cron.schedule('*/10 * * * *', function() {
     runScript('./washingtonpost.js', function (err) {
     if (err) throw err;
     console.log('finished running washingtonpost.js');
-    
-});
-runScript('./getNews.js', function (err) {
-    if (err) throw err;
-    console.log('finished running getNews.js');
     
 });
     //console.log('success!');
