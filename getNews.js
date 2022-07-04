@@ -1,12 +1,13 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { join, dirname, resolve } from 'path';
+import { join, dirname } from 'path';
 import { Low, JSONFile } from 'lowdb';
 import { fileURLToPath } from 'url';
 import getNewsUrls from './components/getUrls.js';
 import changeUrls from './components/changeUrls.js';
 import convert from 'xml-js';
 import fs from 'fs';
+
 
 
 
@@ -142,6 +143,21 @@ export let gettingNews = new Promise((resolve, reject) => {
             console.log('Saved!');
         });
 
-        return result
+        return json
 
-    });
+    }).then((data) => {
+        let json = JSON.parse(data)
+
+        for (let i = 0; i < json.item.length; i++) {
+            if (i >= 100) {
+                json.item.splice(i)
+            }
+        }
+
+        console.log(json.item.length);
+
+        fs.writeFile('/home/godzillanewz/nodejsapp/dataBase/db.json', JSON.stringify(json, null, 2), (err) => {
+            if (err) throw err;
+            console.log('DB cleaned!');
+        });
+    })
