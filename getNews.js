@@ -67,7 +67,7 @@ export let gettingNews = new Promise((resolve, reject) => {
                     link: item,
                     pubDate: new Date(),
                     category: 'Rss Test',
-                    description: formatHtml(html),
+                    description: formatHtml(html)+"<div>This post appeared first on <a href='https://www.foxnews.com/us' target='_blank'>FOX NEWS</a> </div>",
                     // "content:encoded": `<![CDATA[${formatHtml(html)}]]>`,
                 });
             }
@@ -153,8 +153,6 @@ export let gettingNews = new Promise((resolve, reject) => {
                 json.item.splice(i)
             }
         }
-
-        console.log(json.item.length);
 
         fs.writeFile('/home/godzillanewz/nodejsapp/dataBase/db.json', JSON.stringify(json, null, 2), (err) => {
             if (err) throw err;
