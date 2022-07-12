@@ -147,7 +147,7 @@ export let gettingNews = new Promise((resolve, reject) => {
 
     }).then((data) => {
         let json = JSON.parse(data)
-
+        // TODO: check the logic
         for (let i = 0; i < json.item.length; i++) {
             if (i >= 100) {
                 json.item.splice(i)
