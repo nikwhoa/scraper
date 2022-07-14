@@ -38,9 +38,14 @@ function runScript(scriptPath, callback) {
 }
 
 
-cron.schedule('*/10 * * * *', function() {
+cron.schedule('0 0 * * *', function() {
     //console.log('running a task every 10 minutes');
     runScript('./washingtonpost.js', function (err) {
+    if (err) throw err;
+    console.log('finished running washingtonpost.js');
+    
+});
+    runScript('./getNews.js', function (err) {
     if (err) throw err;
     console.log('finished running washingtonpost.js');
     

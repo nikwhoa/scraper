@@ -81,81 +81,119 @@ export let gettingNews = new Promise((resolve, reject) => {
 
         let { item } = db.data;
 
+        let news = {
+            "item": []
+        }
+
         if (item.length <= 0) {
             item.unshift(...data);
             await db.write();
         } else {
-            data.forEach((items) => {
-                if (!item.find((news) => news.title === items.title)) {
-                    item.unshift(...data);
-                }
+            let a = 0;
+            let b = 0;
+            item.forEach(element => {
+                data.forEach(el => {
+                    if (el.title !== element.title) {
+                        news.item.unshift(el)
+                        // item.unshift(el)
+                    } else {
+                        console.log('duplicate');
+                    }
+                })
             });
-            await db.write();
+
+            // item.forEach(element => {
+            //     data.forEach(el => {
+            //         if (element.title !== el.title) {
+            //             console.log(true);
+            //         }
+            //     })
+            // });
+            // data.forEach((items) => {
+                // console.log(items);
+
+                // item.forEach(news => {
+                //     if (items.title !== news.title) {
+                //         item.unshift(items)
+                //     }
+                // })
+
+
+
+                // if (!item.find((news) => news.title === items.title)) {
+                //     item.unshift(...data);
+                // }
+            // });
+            // await db.write();
         }
 
+        // console.log(item.length);
+        // await db.write()
+        console.log(news.length);
         return item
     })
-    .then(() => {
-        // const data = db.data.news;
+    // .then(() => {
+    //     // const data = db.data.news;
 
-        let xml = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
-        xmlns:content="http://purl.org/rss/1.0/modules/content/"
-        xmlns:wfw="http://wellformedweb.org/CommentAPI/"
-        xmlns:dc="http://purl.org/dc/elements/1.1/"
-        xmlns:atom="http://www.w3.org/2005/Atom"
-        xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
-        xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
-        >
+    //     let xml = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+    //     xmlns:content="http://purl.org/rss/1.0/modules/content/"
+    //     xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+    //     xmlns:dc="http://purl.org/dc/elements/1.1/"
+    //     xmlns:atom="http://www.w3.org/2005/Atom"
+    //     xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+    //     xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+    //     >
 
-    <channel>
-        <title>FOX NEWS US</title>
-        <atom:link href="https://www.foxnews.com/us" rel="self" type="application/rss+xml" />
-        <link>https://www.foxnews.com/us</link>
-        <description>Where Hope Finally Made a Comeback</description>
-        <lastBuildDate>${new Date()}</lastBuildDate>
-        <language>en-US</language>
-        <sy:updatePeriod>
-        hourly	</sy:updatePeriod>
-        <sy:updateFrequency>
-        1	</sy:updateFrequency>
-        <generator>https://wordpress.org/?v=5.8.4</generator>`;
-
-
-
-        let json = fs.readFileSync('/home/godzillanewz/nodejsapp/dataBase/db.json', 'utf8');
-
-        // let json = data
-        let options = {
-            compact: true,
-            ignoreComment: false,
-            ignoreText: false,
-            spaces: 4,
-            indentAttributes: true,
-            indentCdata: true,
-        };
+    // <channel>
+    //     <title>FOX NEWS US</title>
+    //     <atom:link href="https://www.foxnews.com/us" rel="self" type="application/rss+xml" />
+    //     <link>https://www.foxnews.com/us</link>
+    //     <description>Where Hope Finally Made a Comeback</description>
+    //     <lastBuildDate>${new Date()}</lastBuildDate>
+    //     <language>en-US</language>
+    //     <sy:updatePeriod>
+    //     hourly	</sy:updatePeriod>
+    //     <sy:updateFrequency>
+    //     1	</sy:updateFrequency>
+    //     <generator>https://wordpress.org/?v=5.8.4</generator>`;
 
 
 
-        let result = convert.json2xml(json, options);
+    //     let json = fs.readFileSync('/home/godzillanewz/nodejsapp/dataBase/db.json', 'utf8');
 
-        fs.writeFile('/home/godzillanewz/public_html/rss.xml', xml+result+'</channel></rss>', (err) => {
-            if (err) throw err;
-            console.log('Saved!');
-        });
+    //     // let json = data
+    //     let options = {
+    //         compact: true,
+    //         ignoreComment: false,
+    //         ignoreText: false,
+    //         spaces: 4,
+    //         indentAttributes: true,
+    //         indentCdata: true,
+    //     };
 
-        return json
 
-    }).then((data) => {
-        let json = JSON.parse(data)
-        // TODO: check the logic
-        for (let i = 0; i < json.item.length; i++) {
-            if (i >= 100) {
-                json.item.splice(i)
-            }
-        }
 
-        fs.writeFile('/home/godzillanewz/nodejsapp/dataBase/db.json', JSON.stringify(json, null, 2), (err) => {
-            if (err) throw err;
-            console.log('DB cleaned!');
-        });
-    })
+    //     let result = convert.json2xml(json, options);
+
+    //     fs.writeFile('/home/godzillanewz/public_html/rss.xml', xml+result+'</channel></rss>', (err) => {
+    //         if (err) throw err;
+    //         console.log('Saved!');
+    //     });
+
+    //     return json
+
+    // })
+    // .then((data) => {
+    //     let json = JSON.parse(data)
+    //     // TODO: check the logic
+    //     for (let i = 0; i < json.item.length; i++) {
+    //         if (i >= 100) {
+    //             json.item.splice(i)
+    //         }
+    //     }
+
+    //     fs.writeFile('/home/godzillanewz/nodejsapp/dataBase/db.json', JSON.stringify(json, null, 2), (err) => {
+    //         if (err) throw err;
+    //         console.log('DB cleaned!');
+    //     });
+    // })
