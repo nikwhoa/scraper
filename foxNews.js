@@ -92,82 +92,23 @@ const gettingNews = new Promise((resolve, reject) => {
     })
     .then(async (data) => {
         let { item } = db.data;
-        let newItem = [];
+
+
         if (item.length <= 0) {
             item.unshift(...data);
             await db.write();
         } else {
-            for (let i = 0; i < item.length; i++) {
-                for (let a = 0; a < data.length; a++) {
-                    if (item[i].title === data[a].title) {
-                        return null
-                    } else {
-                        console.log(item[i].title, data[a].title);
-                        // newItem.push(data[a]);
-                        // newItem.push(item[i]);
-                    }
+            data.filter(news => {
+                if (!item.map(el => el.title).includes(news.title)) {
+                    item.unshift(news);
                 }
-            }
-            // for (const news of item) {
-            //     for (const newNews of data) {
-            //         if (news.title === newNews.title) {
-            //             return null;
-            //         } else {
-            //             newItem.push(newNews);
-            //             newItem.push(news);
-            //         }
-            //     }
-            // }
+            })
         }
-        console.log(newItem);
-        // await db.write();
-        // console.log(db.data);
-        // if (db.data.length < 0) {
-        //     db.set('news', data).write();
-        // }
-        // let { item } = db.data;
-        // let news = {
-        //     item: [],
-        // };
-        // if (item.length <= 0) {
-        //     item.unshift(...data);
-        //     await db.write();
-        // } else {
-        //     let a = 0;
-        //     let b = 0;
-        //     item.forEach((element) => {
-        //         data.forEach((el) => {
-        //             if (el.title !== element.title) {
-        //                 news.item.unshift(el);
-        //                 // item.unshift(el)
-        //             } else {
-        //                 console.log('duplicate');
-        //             }
-        //         });
-        //     });
-        // item.forEach(element => {
-        //     data.forEach(el => {
-        //         if (element.title !== el.title) {
-        //             console.log(true);
-        //         }
-        //     })
-        // });
-        // data.forEach((items) => {
-        // console.log(items);
-        // item.forEach(news => {
-        //     if (items.title !== news.title) {
-        //         item.unshift(items)
-        //     }
-        // })
-        // if (!item.find((news) => news.title === items.title)) {
-        //     item.unshift(...data);
-        // }
-        // });
-        // await db.write();
-        // }
-        // console.log(item.length);
-        // await db.write()
-        // console.log(news.length);
+
+        await db.write();
+
+        return item;
+
         // return item;
     });
 // .then(() => {
