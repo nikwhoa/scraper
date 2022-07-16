@@ -4,10 +4,9 @@ import { join, dirname } from 'path';
 import { Low, JSONFile } from 'lowdb';
 import { fileURLToPath } from 'url';
 import getNewsUrls from './components/getUrls.js';
-// import changeUrls from './components/changeUrls.js';
 import convert from 'xml-js';
 import fs from 'fs';
-
+import baseXML from './components/baseXML.js';
 // create and connect to database
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const file = join(__dirname, './dataBase/foxnews.json'); // path to database
@@ -15,6 +14,7 @@ const adapter = new JSONFile(file);
 const db = new Low(adapter);
 await db.read();
 
+// if database is empty, create base for it
 if (!db.data) {
     db.data = {
         item: [],
@@ -47,6 +47,7 @@ const gettingNews = new Promise((resolve, reject) => {
     .then(async (data) => {
         let newNews = [];
 
+        // get news from urls
         for (const item of data) {
             const { data } = await axios.get(item);
             const $ = cheerio.load(data);
@@ -74,7 +75,7 @@ const gettingNews = new Promise((resolve, reject) => {
                 );
                 return data;
             };
-
+            // create object with news
             if (titleNews.length > 0 && subTitle.length > 0) {
                 newNews.push({
                     title: titleNews,
@@ -93,82 +94,53 @@ const gettingNews = new Promise((resolve, reject) => {
     .then(async (data) => {
         let { item } = db.data;
 
-
         if (item.length <= 0) {
+            // add new news if there is no news in database
             item.unshift(...data);
             await db.write();
         } else {
-            data.filter(news => {
-                if (!item.map(el => el.title).includes(news.title)) {
+            data.filter((news) => {
+                // if news is not in database then add it
+                if (!item.map((el) => el.title).includes(news.title)) {
                     item.unshift(news);
                 }
-            })
+            });
+        }
+        // remove news if it is more than 100
+        for (let i = 0; i < item.length; i++) {
+            if (i > 100) {
+                item.splice(i);
+            }
         }
 
         await db.write();
 
         return item;
+    })
+    .then((data) => {
+        const xml = baseXML(
+            'https://www.foxnews.com/us',
+            'FOX NEWS US',
+            'Get the latest news from FOX NEWS US'
+        );
 
-        // return item;
+        const jsonNews = fs.readFileSync('./dataBase/foxnews.json', 'utf8');
+
+        const xmlNews = convert.json2xml(jsonNews, {
+            compact: true,
+            ignoreComment: false,
+            ignoreText: false,
+            spaces: 4,
+            indentAttributes: true,
+            indentCdata: true,
+        });
+
+        fs.writeFile(
+            'foxnews.xml',
+            xml + xmlNews + '</channel></rss>',
+            (err) => {
+                if (err) throw err;
+                console.log('The file has been saved!');
+            }
+        );
     });
-// .then(() => {
-//     // const data = db.data.news;
-
-//     let xml = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
-//     xmlns:content="http://purl.org/rss/1.0/modules/content/"
-//     xmlns:wfw="http://wellformedweb.org/CommentAPI/"
-//     xmlns:dc="http://purl.org/dc/elements/1.1/"
-//     xmlns:atom="http://www.w3.org/2005/Atom"
-//     xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
-//     xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
-//     >
-
-// <channel>
-//     <title>FOX NEWS US</title>
-//     <atom:link href="https://www.foxnews.com/us" rel="self" type="application/rss+xml" />
-//     <link>https://www.foxnews.com/us</link>
-//     <description>Where Hope Finally Made a Comeback</description>
-//     <lastBuildDate>${new Date()}</lastBuildDate>
-//     <language>en-US</language>
-//     <sy:updatePeriod>
-//     hourly	</sy:updatePeriod>
-//     <sy:updateFrequency>
-//     1	</sy:updateFrequency>
-//     <generator>https://wordpress.org/?v=5.8.4</generator>`;
-
-//     let json = fs.readFileSync('/home/godzillanewz/nodejsapp/dataBase/db.json', 'utf8');
-
-//     // let json = data
-//     let options = {
-//         compact: true,
-//         ignoreComment: false,
-//         ignoreText: false,
-//         spaces: 4,
-//         indentAttributes: true,
-//         indentCdata: true,
-//     };
-
-//     let result = convert.json2xml(json, options);
-
-//     fs.writeFile('/home/godzillanewz/public_html/rss.xml', xml+result+'</channel></rss>', (err) => {
-//         if (err) throw err;
-//         console.log('Saved!');
-//     });
-
-//     return json
-
-// })
-// .then((data) => {
-//     let json = JSON.parse(data)
-//     // TODO: check the logic
-//     for (let i = 0; i < json.item.length; i++) {
-//         if (i >= 100) {
-//             json.item.splice(i)
-//         }
-//     }
-
-//     fs.writeFile('/home/godzillanewz/nodejsapp/dataBase/db.json', JSON.stringify(json, null, 2), (err) => {
-//         if (err) throw err;
-//         console.log('DB cleaned!');
-//     });
-// })
