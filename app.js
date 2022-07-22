@@ -1,8 +1,8 @@
 import http from 'http';
 import childProcess from 'child_process';
-// const hostname = 'godzillanewz.com';
-const hostname = 'localhost';
-const port = 3011;
+const hostname = 'godzillanewz.com';
+// const hostname = 'localhost';
+const port = 3000;
 
 const server = http.createServer((req, res) => {
     res.statusCode = 200;
@@ -35,7 +35,7 @@ function runScript(scriptPath, callback) {
     });
 }
 
-cron.schedule('0 * * * *', function () {
+cron.schedule('0 0 * * *', function () {
     // */2 * * * *
     // 0 0 * * *
     //console.log('running a task every 10 minutes');

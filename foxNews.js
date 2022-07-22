@@ -35,7 +35,7 @@ const gettingNews = new Promise((resolve, reject) => {
         data.forEach((el) => {
             if (el[0] === '/') {
                 changedUrls.push('https://www.foxnews.com' + el);
-            } else if (el.includes('video')) {
+            } else if (el.includes('video') || el.includes('media')) {
                 return null;
             } else {
                 changedUrls.push(el);
@@ -55,15 +55,18 @@ const gettingNews = new Promise((resolve, reject) => {
             const subTitle = $('.sub-headline').text();
             // const image = $('.m');
 
+            $('p:contains("CLICK HERE TO GET THE FOX NEWS APP")').remove();
+            $('p:contains("CLICK HERE FOR THE FOX NEWS APP")').remove();
+            $('p:contains("CLICK HERE TO DOWNLOAD THE FOX NEWS APP")').remove();
             $('.control').remove();
+            $('a').contents().unwrap();
             $('.featured-video').remove();
             $('.speechkit-wrapper').remove();
             $('.ad-container').remove();
             $('.caption').remove();
             $('.contain').remove();
             $('.featured-image').remove();
-            $('p:contains("CLICK HERE TO GET THE FOX NEWS APP")').remove();
-            $('p:contains("CLICK HERE FOR THE FOX NEWS APP")').remove();
+
 
             const content = $('.article-body').html();
             const html = content != null ? content.replace(/"/g, "'") : '';
@@ -84,7 +87,7 @@ const gettingNews = new Promise((resolve, reject) => {
                     category: 'Rss Test',
                     description:
                         formatHtml(html) +
-                        "<div>This post appeared first on <a href='https://www.foxnews.com/us' target='_blank'>FOX NEWS</a> </div>",
+                        "<div>This post appeared first on FOX NEWS</div>",
                     // "content:encoded": `<![CDATA[${formatHtml(html)}]]>`,
                 });
             }
@@ -124,7 +127,7 @@ const gettingNews = new Promise((resolve, reject) => {
             'Get the latest news from FOX NEWS US'
         );
 
-        const jsonNews = fs.readFileSync('./dataBase/foxnews.json', 'utf8');
+        const jsonNews = fs.readFileSync('/home/godzillanewz/nodejsapp/dataBase/foxnews.json', 'utf8');
 
         const xmlNews = convert.json2xml(jsonNews, {
             compact: true,
@@ -136,7 +139,7 @@ const gettingNews = new Promise((resolve, reject) => {
         });
 
         fs.writeFile(
-            'foxnews.xml',
+            '/home/godzillanewz/public_html/foxnews.xml',
             xml + xmlNews + '</channel></rss>',
             (err) => {
                 if (err) throw err;
