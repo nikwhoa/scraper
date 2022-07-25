@@ -35,14 +35,14 @@ function runScript(scriptPath, callback) {
     });
 }
 
-cron.schedule('0 0 * * *', function () {
+cron.schedule('0 0 0 * * *', function () {
     // */2 * * * *
     // 0 0 * * *
     //console.log('running a task every 10 minutes');
 
     runScript('./foxNews.js', function (err) {
         if (err) throw err;
-        console.log('finished foxNews.js');
+        //console.log('finished foxNews.js');
     });
 
     // runScript('./washingtonpost.js', function (err) {
