@@ -1,13 +1,12 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { join, dirname, resolve } from 'path';
-import { Low, JSONFile } from 'lowdb';
-import { fileURLToPath } from 'url';
+import {join, dirname, resolve} from 'path';
+import {Low, JSONFile} from 'lowdb';
+import {fileURLToPath} from 'url';
 import getNewsUrls from './components/getUrls.js';
-import changeUrls from './components/changeUrls.js';
 import convert from 'xml-js';
 import fs from 'fs';
-
+import baseXML from './components/baseXML.js';
 // create and connect to database
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const file = join(__dirname, './dataBase/washingtonpost.json');
@@ -15,7 +14,15 @@ const adapter = new JSONFile(file);
 const db = new Low(adapter);
 await db.read();
 
-export let gettingNews = new Promise((resolve, reject) => {
+// if database is empty, create base for it
+if (!db.data) {
+    db.data = {
+        item: [],
+    };
+    await db.write();
+}
+
+const gettingNews = new Promise((resolve, reject) => {
     const data = getNewsUrls(
         'https://www.washingtonpost.com/politics/',
         '.story-headline.pr-sm > a'
@@ -26,14 +33,10 @@ export let gettingNews = new Promise((resolve, reject) => {
         let newNews = [];
 
         for (const item of data) {
-            const { data } = await axios.get(item);
+            const {data} = await axios.get(item);
             const $ = cheerio.load(data);
             const titleNews = $('h1 > span').text();
             const image = $('article img').attr('srcset'); // todo: check what to pass
-
-
-
-
 
 
             // todo: remove elements here
@@ -70,7 +73,6 @@ export let gettingNews = new Promise((resolve, reject) => {
                 }
 
 
-
                 newNews.push({
                     title: titleNews,
                     link: item,
@@ -84,61 +86,57 @@ export let gettingNews = new Promise((resolve, reject) => {
         return newNews;
     })
     .then(async (data) => {
-        let { item } = db.data;
+        let {item} = db.data;
 
         if (item.length <= 0) {
             item.unshift(...data);
             await db.write();
         } else {
-            data.forEach((items) => {
-                if (!item.find((news) => news.title === items.title)) {
-                    item.unshift(...data);
+            data.filter((news) => {
+                // if news is not in database then add it
+                if (!item.map((el) => el.title).includes(news.title)) {
+                    item.unshift(news);
                 }
             });
-            await db.write();
         }
+
+        for (let i = 0; i < item.length; i++) {
+            if (i > 100) {
+                item.splice(i);
+            }
+        }
+
+        await db.write();
 
         return item;
     })
     .then(() => {
-        let xml = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
-        xmlns:content="http://purl.org/rss/1.0/modules/content/"
-        xmlns:wfw="http://wellformedweb.org/CommentAPI/"
-        xmlns:dc="http://purl.org/dc/elements/1.1/"
-        xmlns:atom="http://www.w3.org/2005/Atom"
-        xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
-        xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
-        >
-    <channel>
-        <title>FOX NEWS US</title>
-        <lastBuildDate>${new Date()}</lastBuildDate>`;
 
-        let json = fs.readFileSync(
-            '/home/godzillanewz/nodejsapp/dataBase/washingtonpost.json',
-            // './dataBase/washingtonpost.json',
-            'utf8'
+        const xml = baseXML(
+            'https://www.washingtonpost.com/politics/',
+            'Washingtonpost politics',
+            'Get the latest news from washingtonpost'
         );
 
-        // let json = data
-        let options = {
+        // const jsonNews = fs.readFileSync('./dataBase/washingtonpost.json', 'utf8');
+        const jsonNews = fs.readFileSync('/home/godzillanewz/nodejsapp/dataBase/washingtonpost.json', 'utf8');
+
+        const xmlNews = convert.json2xml(jsonNews, {
             compact: true,
             ignoreComment: false,
             ignoreText: false,
             spaces: 4,
             indentAttributes: true,
             indentCdata: true,
-        };
-
-        let result = convert.json2xml(json, options);
+        });
 
         fs.writeFile(
-            '/home/godzillanewz/public_html/washingtonpost-rss.xml',
-            xml + result + '</channel></rss>',
+            '/home/godzillanewz/public_html/washingtonpost.xml',
+            // 'xml/washingtonpost.xml',
+            xml + xmlNews + '</channel></rss>',
             (err) => {
                 if (err) throw err;
-                console.log('Saved!');
+                console.log('The file has been saved!');
             }
         );
-
-        return result;
     });

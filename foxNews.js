@@ -1,8 +1,8 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { join, dirname } from 'path';
-import { Low, JSONFile } from 'lowdb';
-import { fileURLToPath } from 'url';
+import {join, dirname} from 'path';
+import {Low, JSONFile} from 'lowdb';
+import {fileURLToPath} from 'url';
 import getNewsUrls from './components/getUrls.js';
 import convert from 'xml-js';
 import fs from 'fs';
@@ -49,7 +49,7 @@ const gettingNews = new Promise((resolve, reject) => {
 
         // get news from urls
         for (const item of data) {
-            const { data } = await axios.get(item);
+            const {data} = await axios.get(item);
             const $ = cheerio.load(data);
             const titleNews = $('.headline').text();
             const subTitle = $('.sub-headline').text();
@@ -95,7 +95,7 @@ const gettingNews = new Promise((resolve, reject) => {
         return newNews;
     })
     .then(async (data) => {
-        let { item } = db.data;
+        let {item} = db.data;
 
         if (item.length <= 0) {
             // add new news if there is no news in database

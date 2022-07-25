@@ -3,3 +3,4 @@
 dataBase
 # /dataBase
 *.xml
+.idea
