@@ -43,6 +43,7 @@ const gettingNews = new Promise((resolve, reject) => {
             $('.dn-ns').remove();
             $('.db-ns').remove();
             $('iframe').remove();
+            $('a').contents().unwrap();
             $('.hide-for-print').remove();
             $('.pb-sm.pt-lgmod').remove();
             $('span a:contains("Sign up")').remove();

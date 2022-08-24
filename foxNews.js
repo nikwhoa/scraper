@@ -24,7 +24,7 @@ if (!db.data) {
 
 const gettingNews = new Promise((resolve, reject) => {
     const data = getNewsUrls(
-        'https://www.foxnews.com/us',
+        'https://www.foxnews.com/politics',
         '.collection.collection-article-list > div.content.article-list > article.article > div.m > a'
     );
     resolve(data);
