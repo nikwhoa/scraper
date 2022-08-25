@@ -10,10 +10,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@xmldom/xmldom": "^0.8.2",
     "axios": "^0.27.2",
     "cheerio": "^1.0.0-rc.10",
     "child_process": "^1.0.2",
     "forever": "^4.0.3",
+    "jsdom": "^20.0.0",
     "jstoxml": "^3.2.3",
     "lowdb": "^3.0.0",
     "node-cron": "^3.0.1",
