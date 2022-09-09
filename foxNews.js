@@ -1,24 +1,23 @@
-import axios from 'axios';
-import * as cheerio from 'cheerio';
+import axios from "axios";
+import * as cheerio from "cheerio";
 
-import {join, dirname} from 'path';
-import {Low, JSONFile} from 'lowdb';
+import { join, dirname } from "path";
+import { Low, JSONFile } from "lowdb";
 
-import {fileURLToPath} from 'url';
-import getNewsUrls from './components/getUrls.js';
+import { fileURLToPath } from "url";
+import getNewsUrls from "./components/getUrls.js";
 
-import convert from 'xml-js';
-import fs from 'fs';
+import convert from "xml-js";
+import fs from "fs";
 
-import baseXML from './components/baseXML.js';
+import baseXML from "./components/baseXML.js";
 
-import {DOMParser} from "@xmldom/xmldom";
-import {JSDOM} from "jsdom";
-
+import { DOMParser } from "@xmldom/xmldom";
+import { JSDOM } from "jsdom";
 
 // create and connect to database
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const file = join(__dirname, './dataBase/foxnews.json'); // path to database
+const file = join(__dirname, "./dataBase/foxnews.json"); // path to database
 const adapter = new JSONFile(file);
 const db = new Low(adapter);
 await db.read();
@@ -33,8 +32,8 @@ if (!db.data) {
 
 const gettingNews = new Promise((resolve, reject) => {
     const data = getNewsUrls(
-        'https://www.foxnews.com/politics',
-        '.collection.collection-article-list > div.content.article-list > article.article > div.m > a'
+        "https://www.foxnews.com/politics",
+        ".collection.collection-article-list > div.content.article-list > article.article > div.m > a"
     );
     resolve(data);
 })
@@ -42,9 +41,9 @@ const gettingNews = new Promise((resolve, reject) => {
         let changedUrls = [];
 
         data.forEach((el) => {
-            if (el[0] === '/') {
-                changedUrls.push('https://www.foxnews.com' + el);
-            } else if (el.includes('video') || el.includes('media')) {
+            if (el[0] === "/") {
+                changedUrls.push("https://www.foxnews.com" + el);
+            } else if (el.includes("video") || el.includes("media")) {
                 return null;
             } else {
                 changedUrls.push(el);
@@ -58,40 +57,41 @@ const gettingNews = new Promise((resolve, reject) => {
 
         // get news from urls
         for (const item of data) {
-            const {data} = await axios.get(item);
+            const { data } = await axios.get(item);
             const $ = cheerio.load(data);
-            const titleNews = $('.headline').text();
-            const subTitle = $('.sub-headline').text();
+            const titleNews = $(".headline").text();
+            const subTitle = $(".sub-headline").text();
 
             $('p:contains("CLICK HERE TO GET THE FOX NEWS APP")').remove();
             $('p:contains("CLICK HERE FOR THE FOX NEWS APP")').remove();
             $('p:contains("CLICK HERE TO DOWNLOAD THE FOX NEWS APP")').remove();
             $('p:contains("CLICK TO")').remove();
-            $('.control').remove();
+            $(".control").remove();
 
+            $("p:has(a)")
+                .filter(function () {
+                    return $(this).contents().length === 1;
+                })
+                .children("a")
+                .remove();
 
-            $('p:has(a)').filter(function () {
-                return $(this).contents().length === 1;
-            }).children('a').remove()
+            $("a").contents().unwrap();
 
-            $('a').contents().unwrap();
+            $(".featured-video").remove();
+            $(".speechkit-wrapper").remove();
+            $(".ad-container").remove();
+            $(".caption").remove();
+            $(".contain").remove();
+            $(".featured-image").remove();
 
-            $('.featured-video').remove();
-            $('.speechkit-wrapper').remove();
-            $('.ad-container').remove();
-            $('.caption').remove();
-            $('.contain').remove();
-            $('.featured-image').remove();
+            const content = $(".article-body").html();
 
-
-            const content = $('.article-body').html();
-
-            const html = content != null ? content.replace(/"/g, "'") : '';
+            const html = content != null ? content.replace(/"/g, "'") : "";
 
             const formatHtml = (html) => {
                 let data = html.replace(
                     /class='featured featured-video video-ct'|data-v-13907676=''|/g,
-                    ''
+                    ""
                 );
                 return data;
             };
@@ -101,7 +101,7 @@ const gettingNews = new Promise((resolve, reject) => {
                     title: titleNews,
                     link: item,
                     pubDate: new Date(),
-                    category: 'Rss Test',
+                    category: "Rss Test",
                     description:
                         formatHtml(html) +
                         "<div>This post appeared first on FOX NEWS</div>",
@@ -112,7 +112,7 @@ const gettingNews = new Promise((resolve, reject) => {
         return newNews;
     })
     .then(async (data) => {
-        let {item} = db.data;
+        let { item } = db.data;
 
         if (item.length <= 0) {
             // add new news if there is no news in database
@@ -139,14 +139,17 @@ const gettingNews = new Promise((resolve, reject) => {
     })
     .then((data) => {
         const xml = baseXML(
-            'https://www.foxnews.com/us',
-            'FOX NEWS US',
-            'Get the latest news from FOX NEWS US'
+            "https://www.foxnews.com/us",
+            "FOX NEWS US",
+            "Get the latest news from FOX NEWS US"
         );
         // change it before sending to server
         // const jsonNews = fs.readFileSync('./dataBase/foxnews.json', 'utf8');
         // const jsonNews = fs.readFileSync('dataBase/foxnews.json', 'utf8');
-        const jsonNews = fs.readFileSync('/home/godzillanewz/nodejsapp/dataBase/foxnews.json', 'utf8');
+        const jsonNews = fs.readFileSync(
+            "/home/godzillanewz/nodejsapp/dataBase/foxnews.json",
+            "utf8"
+        );
 
         const xmlNews = convert.json2xml(jsonNews, {
             compact: true,
@@ -159,12 +162,12 @@ const gettingNews = new Promise((resolve, reject) => {
 
         fs.writeFile(
             // change it before sending to server
-            '/home/godzillanewz/public_html/foxnews.xml',
+            "/home/godzillanewz/public_html/foxnews.xml",
             // './foxnews.xml',
-            xml + xmlNews + '</channel></rss>',
+            xml + xmlNews + "</channel></rss>",
             (err) => {
                 if (err) throw err;
-                console.log('The file has been saved!');
+                console.log("The file has been saved!");
             }
         );
     });
