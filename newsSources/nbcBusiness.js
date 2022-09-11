@@ -117,8 +117,8 @@ const getNews = new Promise((resolve, reject) => {
 
         fs.writeFile(
             // change it before sending to server
-            // '/home/godzillanewz/public_html/foxnews.xml',
-            './xml/nbcBusiness.xml',
+            '/home/godzillanewz/public_html/nbcBusiness.xml',
+            // './xml/nbcBusiness.xml',
             xml + xmlNews + '</channel></rss>',
             (err) => {
                 if (err) throw err;
