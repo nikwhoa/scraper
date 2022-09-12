@@ -60,7 +60,7 @@ const getNews = new Promise((resolve, reject) => {
                 $('.inline-image').remove();
                 const html = $('.article-body__content').html();
 
-                item.description = `<img src='${item.image}'>${html.replace(
+                item.description = `<img src='${item.image}' />${html.replace(
                     /"/g,
                     "'",
                 )}<br><div>This post appeared first on NBC NEWS</div>`;
