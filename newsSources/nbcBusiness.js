@@ -64,8 +64,10 @@ const getNews = new Promise((resolve, reject) => {
                     /"/g,
                     "'",
                 )}<br><div>This post appeared first on NBC NEWS</div>`;
+
             } else {
                 delete data[item];
+
             }
         }
 
@@ -76,6 +78,7 @@ const getNews = new Promise((resolve, reject) => {
         const dataBase = new Low(adapter);
         await dataBase.read();
         const { item } = dataBase.data;
+        data.forEach((el) => delete el.image)
 
         if (item.length <= 0) {
             // add new news if there is no news in database
