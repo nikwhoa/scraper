@@ -5,8 +5,6 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { Low, JSONFile } from 'lowdb';
 import fs from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
 import convert from 'xml-js';
 import connectDatabase from '../connectDatabase.js';
 import baseXML from '../components/baseXML.js';
@@ -62,10 +60,10 @@ const getNews = new Promise((resolve, reject) => {
                 $('.inline-image').remove();
                 const html = $('.article-body__content').html();
 
-                item.description = `${html.replace(
+                item.description = `<img src='${item.image}' hidden='true'>${html.replace(
                     /"/g,
                     "'",
-                )}<br><div>This post appeared first on FOX NEWS</div>`;
+                )}<br><div>This post appeared first on NBC NEWS</div>`;
             } else {
                 delete data[item];
             }
