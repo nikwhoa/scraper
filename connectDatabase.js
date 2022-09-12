@@ -1,4 +1,5 @@
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { Low, JSONFile } from 'lowdb';
 import fs from 'fs';
 
@@ -6,8 +7,9 @@ import fs from 'fs';
 
 const connectDatabase = async (filename) => {
     let path = '';
+    const __dirname = dirname(fileURLToPath(import.meta.url));
 
-    if (!fs.existsSync(`./dataBase/${filename}`)) {
+    if (!fs.existsSync(`${__dirname}./dataBase/${filename}`)) {
         const file = join('./dataBase/', filename);
         const adapter = new JSONFile(file);
         const db = new Low(adapter);
@@ -26,6 +28,5 @@ const connectDatabase = async (filename) => {
     path = `./dataBase/${filename}`;
     return path;
 };
-
 
 export default connectDatabase;

@@ -5,9 +5,13 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { Low, JSONFile } from 'lowdb';
 import fs from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import convert from 'xml-js';
-import connectDatabase from '../components/connectDatabase.js';
+import connectDatabase from '../connectDatabase.js';
 import baseXML from '../components/baseXML.js';
+
+
 
 let pathToDataBase = '';
 const db = connectDatabase('nbcBusiness.json').then((path) => {
