@@ -7,8 +7,8 @@ import { Low, JSONFile } from 'lowdb';
 import { fileURLToPath } from 'url';
 import convert from 'xml-js';
 import fs from 'fs';
-import baseXML from './components/baseXML';
-import getNewsUrls from './components/getUrls';
+import baseXML from './components/baseXML.js';
+import getNewsUrls from './components/getUrls.js';
 
 // create and connect to database
 const __dirname = dirname(fileURLToPath(import.meta.url));

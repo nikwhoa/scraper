@@ -4,3 +4,4 @@ dataBase
 # /dataBase
 *.xml
 .idea
+.DS_Store
