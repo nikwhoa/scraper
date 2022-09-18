@@ -44,7 +44,7 @@ const getNews = new Promise((resolve, reject) => {
             if (item.link !== undefined) {
                 const { data } = await axios.get(item.link);
                 const $ = cheerio.load(data);
-
+                $('a').contents().unwrap();
                 $('.HighlightShare-hidden').remove();
                 $('.InlineImage-imageEmbed').remove();
                 $('.ExclusiveContentBucket-exclusiveContentBucket').remove();
