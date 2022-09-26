@@ -26,7 +26,7 @@ const getNews = new Promise((resolve, reject) => {
             article.filter((i, el) => {
                 if (el.attribs.href !== undefined) {
                     news.push({
-                        link: `https://www.usatoday.com/${$(el).attr('href')}`,
+                        link: `https://www.usatoday.com${$(el).attr('href')}`,
                         image: $(el).find('img').attr('data-gl-src')
                             ? $(el)
                                   .find('img')
@@ -55,7 +55,7 @@ const getNews = new Promise((resolve, reject) => {
                 const { data } = await axios.get(item.link);
                 const $ = cheerio.load(data);
                 // const article = $('.gnt_ar_b');
-                $('a').contents().unwrap();
+
                 $('aside').remove();
                 $('figure').remove();
                 $('.gnt_em').remove();
@@ -69,6 +69,14 @@ const getNews = new Promise((resolve, reject) => {
                 $('p:contains("Editor\'s note")').remove();
                 $('p:contains("NEVER MISS")').remove();
 
+                $('p:has(a)').filter(function () {
+                    // check links to others news inside article
+                    if ($(this).contents().length === 2) {
+                        $(this).remove();
+                    }
+                });
+
+                $('a').contents().unwrap();
                 const html = $('.gnt_ar_b').html();
 
                 item.description = `<img src='${item.image}' />${html.replace(
@@ -129,7 +137,7 @@ const getNews = new Promise((resolve, reject) => {
 
         fs.writeFile(
             // change it before sending to server
-            '/home/godzillanewz/public_html/usaTodaySports.xml',
+            '/home/godzillaewz/public_html/usaTodaySports.xml',
             // './xml/usaTodaySports.xml',
             xml + xmlNews + '</channel></rss>',
             (err) => {
