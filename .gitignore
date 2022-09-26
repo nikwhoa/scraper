@@ -1,8 +1,9 @@
 /node_modules
 .history
 dataBase
-# /dataBase
 *.xml
 .idea
 .DS_Store
 *.md
+/ecosystem.config.cjs
+/ecosystem.config.js

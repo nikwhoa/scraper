@@ -79,7 +79,7 @@ const gettingNews = new Promise((resolve, reject) => {
                     link: item,
                     pubDate: new Date(),
                     category: 'Washington Post Politics',
-                    description: `<img src='${b}' />${description}`,
+                    description: `<img src='${b}' />${description}<br><div>This post appeared first on The Washington Post</div>`,
                 });
             }
         }
