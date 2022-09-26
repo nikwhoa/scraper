@@ -9,8 +9,6 @@ import convert from 'xml-js';
 import connectDatabase from '../connectDatabase.js';
 import baseXML from '../components/baseXML.js';
 
-
-
 let pathToDataBase = '';
 const db = connectDatabase('nbcBusiness.json').then((path) => {
     pathToDataBase = path;
@@ -23,19 +21,40 @@ const getNews = new Promise((resolve, reject) => {
         .get('https://www.nbcnews.com/business')
         .then((response) => {
             const $ = cheerio.load(response.data);
-            const article = $('article.tease-card');
 
-            article.filter((i, el) => {
+            // main news
+            $('article.tease-card').filter((i, el) => {
                 if (
                     $(el)
                         .find('.tease-card__title > a')
                         .attr('href')
-                        .includes('business')
+                        .includes('/business/')
                 ) {
                     news.push({
                         link: $(el).find('.tease-card__title > a').attr('href'),
                         image: $(el).find('img').attr('src'),
-                        title: $(el).find('.tease-card__headline').text(),
+                        title: $(el).find('span.tease-card__headline').text(),
+                        pubDate: new Date().toString(),
+                    });
+                }
+            });
+
+            // others news
+            $('.wide-tease-item__wrapper').filter((i, el) => {
+                if (
+                    $(el)
+                        .find('.wide-tease-item__image-wrapper')
+                        .attr('href')
+                        .includes('/business/')
+                ) {
+                    news.push({
+                        link: $(el)
+                            .find('.wide-tease-item__info-wrapper > a')
+                            .attr('href'),
+                        image: $(el).find('img').attr('src'),
+                        title: $(el)
+                            .find('h2.wide-tease-item__headline')
+                            .text(),
                         pubDate: new Date().toString(),
                     });
                 }
@@ -50,7 +69,7 @@ const getNews = new Promise((resolve, reject) => {
 })
     .then(async (data) => {
         for (const item of data) {
-            if (item.link.includes('business')) {
+            if (item.link.includes('business') && item.link !== null) {
                 const { data } = await axios.get(item.link);
                 const $ = cheerio.load(data);
                 $('a').contents().unwrap();
@@ -65,10 +84,8 @@ const getNews = new Promise((resolve, reject) => {
                     /"/g,
                     "'",
                 )}<br><div>This post appeared first on NBC NEWS</div>`;
-
             } else {
                 delete data[item];
-
             }
         }
 
@@ -79,7 +96,7 @@ const getNews = new Promise((resolve, reject) => {
         const dataBase = new Low(adapter);
         await dataBase.read();
         const { item } = dataBase.data;
-        data.forEach((el) => delete el.image)
+        data.forEach((el) => delete el.image);
 
         if (item.length <= 0) {
             // add new news if there is no news in database
@@ -107,9 +124,6 @@ const getNews = new Promise((resolve, reject) => {
             'NBC Business',
             'Get the latest news from NBC Business',
         );
-        // change it before sending to server
-        // const jsonNews = fs.readFileSync('./dataBase/foxnews.json', 'utf8');
-        // const jsonNews = fs.readFileSync('dataBase/foxnews.json', 'utf8');
         const jsonNews = fs.readFileSync(pathToDataBase, 'utf8');
 
         const xmlNews = convert.json2xml(jsonNews, {

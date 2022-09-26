@@ -5,3 +5,4 @@ dataBase
 *.xml
 .idea
 .DS_Store
+*.md

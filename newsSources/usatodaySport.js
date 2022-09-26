@@ -65,6 +65,7 @@ const getNews = new Promise((resolve, reject) => {
                 $('p:contains("Contributing")').remove();
                 $('p:contains("WATCH")').remove();
                 $('p:contains("MORE")').remove();
+                $('p:contains("NFL NEWSLETTER")').remove();
                 $('p:contains("Editor\'s note")').remove();
                 $('p:contains("NEVER MISS")').remove();
 
