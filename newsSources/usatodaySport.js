@@ -24,7 +24,7 @@ const getNews = new Promise((resolve, reject) => {
             const article = $('.gnt_m_flm_a');
 
             article.filter((i, el) => {
-                if (el.attribs.href !== undefined) {
+                if (el.attribs.href !== undefined && el.className === 'gnt_m_flm_a') {
                     news.push({
                         link: `https://www.usatoday.com${$(el).attr('href')}`,
                         image: $(el).find('img').attr('data-gl-src')
@@ -50,6 +50,7 @@ const getNews = new Promise((resolve, reject) => {
         });
 })
     .then(async (data) => {
+        console.log(data);
         for (const item of data) {
             if (item.link !== undefined) {
                 const { data } = await axios.get(item.link);
@@ -137,8 +138,8 @@ const getNews = new Promise((resolve, reject) => {
 
         fs.writeFile(
             // change it before sending to server
-            '/home/godzillanewz/public_html/usaTodaySports.xml',
-            // './xml/usaTodaySports.xml',
+            // '/home/godzillanewz/public_html/usaTodaySports.xml',
+            './xml/usaTodaySports.xml',
             xml + xmlNews + '</channel></rss>',
             (err) => {
                 if (err) throw err;
