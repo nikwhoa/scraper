@@ -138,8 +138,8 @@ const getNews = new Promise((resolve, reject) => {
 
         fs.writeFile(
             // change it before sending to server
-            // '/home/godzillanewz/public_html/usaTodaySports.xml',
-            './xml/usaTodaySports.xml',
+            '/home/godzillanewz/public_html/usaTodaySports.xml',
+            // './xml/usaTodaySports.xml',
             xml + xmlNews + '</channel></rss>',
             (err) => {
                 if (err) throw err;
