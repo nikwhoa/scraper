@@ -24,7 +24,8 @@ const getNews = new Promise((resolve, reject) => {
             const article = $('.gnt_m_flm_a');
 
             article.filter((i, el) => {
-                if (el.attribs.href !== undefined && el.className === 'gnt_m_flm_a') {
+                if (el.attribs.href !== undefined) {
+
                     news.push({
                         link: `https://www.usatoday.com${$(el).attr('href')}`,
                         image: $(el).find('img').attr('data-gl-src')
@@ -43,6 +44,7 @@ const getNews = new Promise((resolve, reject) => {
             });
         })
         .then(() => {
+
             resolve(news);
         })
         .catch((error) => {
@@ -50,7 +52,7 @@ const getNews = new Promise((resolve, reject) => {
         });
 })
     .then(async (data) => {
-        console.log(data);
+        // console.log(data);
         for (const item of data) {
             if (item.link !== undefined) {
                 const { data } = await axios.get(item.link);
