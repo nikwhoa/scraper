@@ -111,7 +111,19 @@ const getNews = new Promise((resolve, reject) => {
             xml + xmlNews + '</channel></rss>',
             (err) => {
                 if (err) throw err;
-                console.log('The file has been saved!');
+                console.log(
+                    `The file has been saved! ${new Date().toLocaleDateString(
+                        'en-uk',
+                        {
+                            // weekday: 'long',
+                            year: 'numeric',
+                            month: 'numeric',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        },
+                    )}`,
+                );
             },
         );
     })
