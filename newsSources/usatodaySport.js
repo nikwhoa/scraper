@@ -144,7 +144,7 @@ const getNews = new Promise((resolve, reject) => {
             // change it before sending to server
             '/home/godzillanewz/public_html/usaTodaySports.xml',
             // './xml/usaTodaySports.xml',
-            // xml + xmlNews + '</channel></rss>',
+            xml + xmlNews + '</channel></rss>',
             (err) => {
                 if (err) throw err;
                 console.log('The file has been saved!');
