@@ -54,8 +54,9 @@ const getNews = new Promise((resolve, reject) => {
     .then(async (data) => {
         // console.log(data);
         for (const item of data) {
-            if (item.link !== undefined) {
+            if (item.link !== undefined && !item.link.includes('in-depth')) {
                 const { data } = await axios.get(item.link);
+                // console.log(item.link);
                 const $ = cheerio.load(data);
                 // const article = $('.gnt_ar_b');
 
@@ -94,6 +95,7 @@ const getNews = new Promise((resolve, reject) => {
         return data;
     })
     .then(async (data) => {
+
         const adapter = new JSONFile(pathToDataBase);
         const dataBase = new Low(adapter);
         await dataBase.read();
@@ -142,7 +144,7 @@ const getNews = new Promise((resolve, reject) => {
             // change it before sending to server
             '/home/godzillanewz/public_html/usaTodaySports.xml',
             // './xml/usaTodaySports.xml',
-            xml + xmlNews + '</channel></rss>',
+            // xml + xmlNews + '</channel></rss>',
             (err) => {
                 if (err) throw err;
                 console.log('The file has been saved!');
