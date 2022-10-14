@@ -25,7 +25,6 @@ const getNews = new Promise((resolve, reject) => {
 
             article.filter((i, el) => {
                 if (el.attribs.href !== undefined) {
-
                     news.push({
                         link: `https://www.usatoday.com${$(el).attr('href')}`,
                         image: $(el).find('img').attr('data-gl-src')
@@ -44,7 +43,6 @@ const getNews = new Promise((resolve, reject) => {
             });
         })
         .then(() => {
-
             resolve(news);
         })
         .catch((error) => {
@@ -95,7 +93,6 @@ const getNews = new Promise((resolve, reject) => {
         return data;
     })
     .then(async (data) => {
-
         const adapter = new JSONFile(pathToDataBase);
         const dataBase = new Low(adapter);
         await dataBase.read();
@@ -147,7 +144,19 @@ const getNews = new Promise((resolve, reject) => {
             xml + xmlNews + '</channel></rss>',
             (err) => {
                 if (err) throw err;
-                console.log('The file has been saved!');
+                console.log(
+                    `The file has been saved! ${new Date().toLocaleDateString(
+                        'en-uk',
+                        {
+                            // weekday: 'long',
+                            year: 'numeric',
+                            month: 'numeric',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        },
+                    )}`,
+                );
             },
         );
     })
