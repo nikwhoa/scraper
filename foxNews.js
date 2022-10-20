@@ -9,6 +9,7 @@ import convert from 'xml-js';
 import fs from 'fs';
 import baseXML from './components/baseXML.js';
 import getNewsUrls from './components/getUrls.js';
+import generateDate from './components/generateDate.js';
 
 // create and connect to database
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -38,6 +39,7 @@ const gettingNews = new Promise((resolve, reject) => {
         data.forEach((el) => {
             if (el[0] === '/') {
                 changedUrls.push('https://www.foxnews.com' + el);
+                changedUrls.push('https://www.foxnews.com/politics/panel-approves-time-extension-alaska-campaign-complaint');
             } else if (el.includes('video') || el.includes('media')) {
                 return null;
             } else {
@@ -95,7 +97,7 @@ const gettingNews = new Promise((resolve, reject) => {
                 newNews.push({
                     title: titleNews,
                     link: item,
-                    pubDate: new Date(),
+                    pubDate: generateDate(),
                     category: 'Rss Test',
                     description:
                         formatHtml(html) +
@@ -140,11 +142,11 @@ const gettingNews = new Promise((resolve, reject) => {
         );
         // change it before sending to server
         // const jsonNews = fs.readFileSync('./dataBase/foxnews.json', 'utf8');
-        // const jsonNews = fs.readFileSync('dataBase/foxnews.json', 'utf8');
-        const jsonNews = fs.readFileSync(
-            '/home/godzillanewz/nodejsapp/dataBase/foxnews.json',
-            'utf8',
-        );
+        const jsonNews = fs.readFileSync('dataBase/foxnews.json', 'utf8');
+        // const jsonNews = fs.readFileSync(
+        //     '/home/godzillanewz/nodejsapp/dataBase/foxnews.json',
+        //     'utf8',
+        // );
 
         const xmlNews = convert.json2xml(jsonNews, {
             compact: true,
@@ -157,8 +159,8 @@ const gettingNews = new Promise((resolve, reject) => {
 
         fs.writeFile(
             // change it before sending to server
-            '/home/godzillanewz/public_html/foxnews.xml',
-            // './foxnews.xml',
+            // '/home/godzillanewz/public_html/foxnews.xml',
+            './foxnews.xml',
             xml + xmlNews + '</channel></rss>',
             (err) => {
                 if (err) throw err;
