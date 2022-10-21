@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import {join, dirname, resolve} from 'path';
@@ -55,13 +56,6 @@ const gettingNews = new Promise((resolve, reject) => {
                 .map((item) => item.replace(/"/g, "'"))
                 .join('');
 
-            // const formatHtml = (html) => {
-            //     let data = html.replace(
-            //         /class='featured featured-video video-ct'|data-v-13907676=''|/g,
-            //         ''
-            //     );
-            //     return data;
-            // };
 
             if (titleNews.length > 0 && description.length > 0 && image !== undefined) {
                 let aaa = image.replace(/ /g, '')
@@ -79,7 +73,7 @@ const gettingNews = new Promise((resolve, reject) => {
                     link: item,
                     pubDate: new Date(),
                     category: 'Washington Post Politics',
-                    description: `<img src='${b}' />${description}<br><div>This post appeared first on The Washington Post</div>`,
+                    description: `<img style="max-width: 800px;" src='${b}' />${description}<br><div>This post appeared first on The Washington Post</div>`,
                 });
             }
         }
