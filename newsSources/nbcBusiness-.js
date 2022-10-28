@@ -79,7 +79,7 @@ const getNews = new Promise((resolve, reject) => {
                 $('.inline-video').remove();
                 $('.inline-image').remove();
                 const html = $('.article-body__content').html();
-                const outputimg = item.image.replace(/\/t_focal-200x100,f_auto,q_auto:best/g, "");
+                const outputimg = item.image.replace(/\/t_focal-758x379,f_auto,q_auto:best/g, "");
 
                 item.description = `<img src='${outputimg}' />${html.replace(
                     /"/g,
@@ -138,8 +138,8 @@ const getNews = new Promise((resolve, reject) => {
 
         fs.writeFile(
             // change it before sending to server
-            '/home/godzillanewz/public_html/nbcBusiness.xml',
-            // './xml/nbcBusiness.xml',
+            // '/home/godzillanewz/public_html/nbcBusiness.xml',
+            './xml/nbcBusiness.xml',
             xml + xmlNews + '</channel></rss>',
             (err) => {
                 if (err) throw err;
