@@ -25,20 +25,24 @@ const getNews = new Promise((resolve, reject) => {
 
             article.filter((i, el) => {
                 if (el.attribs.href !== undefined) {
-                    news.push({
-                        link: `https://www.usatoday.com${$(el).attr('href')}`,
-                        image: $(el).find('img').attr('data-gl-src')
-                            ? $(el)
-                                  .find('img')
-                                  .attr('data-gl-src')
-                                  .replace(
-                                      'width=120&height=120',
-                                      'width=1000&height=1000',
-                                  )
-                            : null,
-                        title: $(el).text(),
-                        pubDate: new Date().toString(),
-                    });
+                    if (!el.attribs.href.includes('in-depth')) {
+                        news.push({
+                            link: `https://www.usatoday.com${$(el).attr(
+                                'href',
+                            )}`,
+                            image: $(el).find('img').attr('data-gl-src')
+                                ? $(el)
+                                      .find('img')
+                                      .attr('data-gl-src')
+                                      .replace(
+                                          'width=120&height=120',
+                                          'width=1000&height=1000',
+                                      )
+                                : null,
+                            title: $(el).text(),
+                            pubDate: new Date().toString(),
+                        });
+                    }
                 }
             });
         })
@@ -54,7 +58,7 @@ const getNews = new Promise((resolve, reject) => {
         for (const item of data) {
             if (item.link !== undefined && !item.link.includes('in-depth')) {
                 const { data } = await axios.get(item.link);
-                // console.log(item.link);
+
                 const $ = cheerio.load(data);
                 // const article = $('.gnt_ar_b');
 
@@ -85,8 +89,6 @@ const getNews = new Promise((resolve, reject) => {
                     /"/g,
                     "'",
                 )}<br><div>This post appeared first on USA TODAY</div>`;
-            } else {
-                delete data[item];
             }
         }
 
