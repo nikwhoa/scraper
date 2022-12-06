@@ -11,5 +11,8 @@ module.exports = {
   },
   rules: {
     indent: "off",
+    "no-restricted-syntax": "off",
+    "no-await-in-loop": "off",
+    "import/extensions": "off"
   },
 };
