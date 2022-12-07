@@ -56,17 +56,9 @@ const getNews = new Promise((resolve, reject) => {
             $('p:contains("Investing News")').remove();
             $('div.post-pager').remove();
             $('div.around-the-web').remove();
+            $('li:has(A)').remove();
             $('a').contents().unwrap();
             $('hr').remove();
-
-            $('l:has(a)').remove();
-
-            // $('l:has(a)').filter(function () {
-            //     // check links to others news inside article
-            //     if ($(this).contents().length === 2) {
-            //         $(this).remove();
-            //     }
-            // });
 
             const image = $('picture > img.rm-hero-media'); // image[0].attribs.src
             const content = $(
