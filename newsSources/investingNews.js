@@ -49,6 +49,8 @@ const getNews = new Promise((resolve, reject) => {
             $('.photo-credit').remove();
             $('script').remove();
             $('p:contains("@INN_Resource")').remove();
+            $('p:contains("investingnews.com")').remove();
+            $('p:contains("cmcleod@investingnews.com")').remove();
             $('p:contains("INN_Technology")').remove();
             $('p:contains("INNSpired")').remove();
             $('p:contains("INN")').remove();
