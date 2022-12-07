@@ -45,14 +45,28 @@ const getNews = new Promise((resolve, reject) => {
                     .trim() || null;
 
             $('div.ad-tag').remove();
+            $('.shortcode-media').remove();
+            $('.photo-credit').remove();
             $('script').remove();
             $('p:contains("@INN_Resource")').remove();
+            $('p:contains("INN_Technology")').remove();
+            $('p:contains("INNSpired")').remove();
+            $('p:contains("INN")').remove();
             $('p:contains("@INN_Australia")').remove();
             $('p:contains("Investing News")').remove();
             $('div.post-pager').remove();
             $('div.around-the-web').remove();
             $('a').contents().unwrap();
             $('hr').remove();
+
+            $('l:has(a)').remove();
+
+            // $('l:has(a)').filter(function () {
+            //     // check links to others news inside article
+            //     if ($(this).contents().length === 2) {
+            //         $(this).remove();
+            //     }
+            // });
 
             const image = $('picture > img.rm-hero-media'); // image[0].attribs.src
             const content = $(
@@ -65,11 +79,14 @@ const getNews = new Promise((resolve, reject) => {
                 title,
                 link: item,
                 pubDate: generateDate(),
-                description: `<img src='${image[0].attribs.src}' />${html
-                    .replace(/\n/g, '')}<br><div>This post appeared first on investingnews.com</div>`,
+                description: `<img src='${
+                    image[0].attribs.src
+                }' />${html.replace(
+                    /\n/g,
+                    '',
+                )}<br><div>This post appeared first on investingnews.com</div>`,
             });
         }
-
 
         return news;
     })
