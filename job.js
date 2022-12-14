@@ -1,5 +1,4 @@
 import schedule from 'node-schedule';
-import {gettingNews} from './getNews.js'
 import fs from 'fs';
 
 const job = schedule.scheduleJob('*/2 * * * *', () => {

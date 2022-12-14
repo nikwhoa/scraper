@@ -35,27 +35,6 @@ function runScript(scriptPath, callback) {
     });
 }
 
-cron.schedule('* * * * *', function () {
-    // */2 * * * *
-    // 0 0 * * *
-    console.log('running a task every 5 minutes');
-
-    runScript('./foxNews.js', function (err) {
-        if (err) throw err;
-        console.log('finished foxNews.js');
-    });
-
-    // runScript('./washingtonpost.js', function (err) {
-    //     if (err) throw err;
-    //     console.log('finished running washingtonpost.js');
-    // });
-    // runScript('./getNews.js', function (err) {
-    //     if (err) throw err;
-    //     console.log('finished running washingtonpost.js');
-    // });
-    //console.log('success!');
-});
-
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
 });
