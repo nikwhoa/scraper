@@ -76,13 +76,23 @@ const getNews = new Promise((resolve, reject) => {
             $('.ad-container').remove();
             $('.caption').remove();
             $('.contain').remove();
+
+            let image = '';
+
+            if ($('.image-ct').attr('baseimage') === undefined || $('.image-ct').attr('baseimage') === null) {
+                image = $('.featured-image').find('img').attr('src');
+                console.log(image);
+            } else {
+                image = $('.image-ct').attr('baseimage');
+            }
+
+
             $('.featured-image').remove();
 
-
-            const image = $('.image-ct').attr('baseimage');
             $('.article-body').find('.image-ct').each((i, el) => {
                 $(el).remove();
             });
+
             const content = $('.article-body').html();
 
 
