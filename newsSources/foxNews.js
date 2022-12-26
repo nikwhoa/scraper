@@ -81,7 +81,6 @@ const getNews = new Promise((resolve, reject) => {
 
             if ($('.image-ct').attr('baseimage') === undefined || $('.image-ct').attr('baseimage') === null) {
                 image = $('.featured-image').find('img').attr('src');
-                console.log(image);
             } else {
                 image = $('.image-ct').attr('baseimage');
             }
@@ -95,6 +94,9 @@ const getNews = new Promise((resolve, reject) => {
 
             const content = $('.article-body').html();
 
+            if (content === undefined || content === null || content.length < 100) {
+                continue;
+            }
 
             const html = content != null ? content.replace(/"/g, "'") : '';
 

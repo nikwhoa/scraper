@@ -44,6 +44,10 @@ const getNews = new Promise((resolve, reject) => {
                     .replace(/\n | {2}| {3}/gm, '')
                     .trim() || null;
 
+            if (title === null) {
+                continue;
+            }
+
             $('div.ad-tag').remove();
             $('.shortcode-media').remove();
             $('.photo-credit').remove();
