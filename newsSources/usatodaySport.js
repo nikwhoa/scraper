@@ -85,6 +85,10 @@ const getNews = new Promise((resolve, reject) => {
                 $('a').contents().unwrap();
                 const html = $('.gnt_ar_b').html();
 
+                if (item.image === null) {
+                    continue;
+                }
+
                 item.description = `<img src='${item.image}' />${html.replace(
                     /"/g,
                     "'",
