@@ -98,6 +98,14 @@ const getNews = new Promise((resolve, reject) => {
                 continue;
             }
 
+            if (
+                image === null ||
+                image === undefined ||
+                image.length <= 1
+            ) {
+                continue;
+            }
+
             const html = content != null ? content.replace(/"/g, "'") : '';
 
             news.push({

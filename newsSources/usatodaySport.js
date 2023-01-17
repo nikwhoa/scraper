@@ -85,7 +85,15 @@ const getNews = new Promise((resolve, reject) => {
                 $('a').contents().unwrap();
                 const html = $('.gnt_ar_b').html();
 
-                if (item.image === null) {
+                if (
+                    item.image === null ||
+                    item.image === undefined ||
+                    item.image.length <= 1
+                ) {
+                    continue;
+                }
+
+                if (html === null || html === undefined || html.length <= 100) {
                     continue;
                 }
 

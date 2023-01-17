@@ -44,7 +44,7 @@ const getNews = new Promise((resolve, reject) => {
                     .replace(/\n | {2}| {3}/gm, '')
                     .trim() || null;
 
-            if (title === null) {
+            if (title === null || title.includes('Download')) {
                 continue;
             }
 
