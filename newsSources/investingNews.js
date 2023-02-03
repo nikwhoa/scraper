@@ -18,13 +18,14 @@ const getNews = new Promise((resolve, reject) => {
         .get('https://investingnews.com/featured')
         .then((response) => {
             const $ = cheerio.load(response.data);
-            const article = $('a.custom-post-headline');
+            const article = $('.widget__head > a');
 
             article.filter((i, el) => {
                 urls.push(el.attribs.href || null);
             });
         })
         .then(() => {
+            console.log(urls);
             resolve(urls);
         })
         .catch((error) => {
@@ -39,12 +40,12 @@ const getNews = new Promise((resolve, reject) => {
             const $ = cheerio.load(data);
 
             const title =
-                $('h1.widget__headline > a.widget__headline-text')
+                $('h1.widget__headline > .widget__headline-text')
                     .text()
                     .replace(/\n | {2}| {3}/gm, '')
                     .trim() || null;
-
-            if (title === null || title.includes('Download')) {
+            console.log(title);
+            if (title === null || title.includes('Download') || title.includes('Outlook') || title.includes('outlook') || title === '' || title.includes('download') || title.toLowerCase().includes('top stories') || title.toLowerCase().includes('video') || title.toLocaleLowerCase().includes('report')) {
                 continue;
             }
 

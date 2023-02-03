@@ -27,7 +27,7 @@ const getNews = new Promise((resolve, reject) => {
                 news.push({
                     link: $(el).find('a').attr('href'),
                     image: $(el).find('img').attr('src'),
-                    title: $(el).find('.Card-titleContainer > a > div').text(),
+                    title: $(el).find('a.Card-title').text(),
                     pubDate: new Date().toString(),
                 });
             });
@@ -42,6 +42,7 @@ const getNews = new Promise((resolve, reject) => {
     .then(async (data) => {
         for (const item of data) {
             if (item.link !== undefined) {
+
                 const { data } = await axios.get(item.link);
                 const $ = cheerio.load(data);
                 $('a').contents().unwrap();
@@ -62,6 +63,7 @@ const getNews = new Promise((resolve, reject) => {
         return data;
     })
     .then(async (data) => {
+
         const adapter = new JSONFile(pathToDataBase);
         const dataBase = new Low(adapter);
         await dataBase.read();
