@@ -43,6 +43,10 @@ const getNews = new Promise((resolve, reject) => {
         for (const item of data) {
             if (item.link !== undefined) {
 
+                if (item.title === '' || item.title === ' ') {
+                    continue;
+                }
+
                 const { data } = await axios.get(item.link);
                 const $ = cheerio.load(data);
                 $('a').contents().unwrap();

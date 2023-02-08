@@ -1,159 +1,105 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { Low, JSONFile } from 'lowdb';
-import fs from 'fs';
-import convert from 'xml-js';
-import connectDatabase from '../connectDatabase.js';
 import baseXML from '../components/baseXML.js';
 import generateDate from '../components/generateDate.js';
-
-let pathToDataBase = '';
-const db = connectDatabase('foolInvestingNews.json').then((path) => {
-    pathToDataBase = path;
-});
+import getNewsFromSource from '../components/getNewsFromSource.js';
+import checkImage from '../components/checkImage.js';
+import cleanHTML from '../components/cleanHTML.js';
+import checkTitle from '../components/checkTitle.js';
+import addNewsToDB from '../components/addNewsToDB.js';
+import generateXML from '../components/generateXML.js';
 
 const getNews = new Promise((resolve, reject) => {
-    let urls = [];
-    axios
-        .get('https://www.fool.com/investing-news/asdfsdaf')
-        .then((response) => {
-            const $ = cheerio.load(response.data);
-            const articleContainer = $('#aggregator-article-container');
-            const article = $('a.custom-post-headline');
+  getNewsFromSource(
+    'https://www.fool.com/investing-news',
+    '#aggregator-article-container .flex',
+  )
+    .then((data) => {
+      let links = [];
 
-            article.filter((i, el) => {
-                urls.push(el.attribs.href || null);
-            });
-        })
-        .then(() => {
-            if (urls.length <= 0) {
-                throw new Error;
-            }
-            resolve(urls);
-        })
-        .catch((error) => {
-            throw error;
-        });
+      data.filter((i, el) => {
+        const $ = cheerio.load(el);
+
+        /* It hase to be change for others source */
+        if (
+          !$(el).find('a').attr('href').includes('the-ascent') &&
+          !$(el).find('a').attr('href').includes('retirement')
+        ) {
+          links.push($(el).find('a').attr('href'));
+        }
+      });
+
+      return links;
+    })
+    .then((urls) => {
+      if (urls.length <= 0) throw new Error();
+      resolve(urls);
+      reject(new Error('Links not found'));
+    });
 })
-    .then(async (urls) => {
-        const news = [];
+  .then(async (data) => {
+    const urls = data.map((url) => 'https://www.fool.com' + url);
 
-        for (const item of urls) {
-            const { data } = await axios.get(item);
-            const $ = cheerio.load(data);
+    const news = [];
 
-            const title =
-                $('h1.widget__headline > a.widget__headline-text')
-                    .text()
-                    .replace(/\n | {2}| {3}/gm, '')
-                    .trim() || null;
+    for (const item of urls) {
+      const { data } = await axios.get(item);
+      const $ = cheerio.load(data);
+      const article = $('.tailwind-article-body').html();
 
-            $('div.ad-tag').remove();
-            $('.shortcode-media').remove();
-            $('.photo-credit').remove();
-            $('script').remove();
-            $('p:contains("@INN_Resource")').remove();
-            $('p:contains("investingnews.com")').remove();
-            $('p:contains("cmcleod@investingnews.com")').remove();
-            $('p:contains("INN_Technology")').remove();
-            $('p:contains("INNSpired")').remove();
-            $('p:contains("INN")').remove();
-            $('p:contains("@INN_Australia")').remove();
-            $('p:contains("Investing News")').remove();
-            $('div.post-pager').remove();
-            $('div.around-the-web').remove();
-            $('li:has(A)').remove();
-            $('a').contents().unwrap();
-            $('hr').remove();
+      const title = $('h1').text();
 
-            const image = $('picture > img.rm-hero-media'); // image[0].attribs.src
-            const content = $(
-                '.posts-wrapper > .post-partial > article .body-description',
-            ).html();
+      /* Check if title is empty or contains stop words */
+      const checkingTitle = checkTitle(title);
 
-            const html = content != null ? content.replace(/"/g, "'") : '';
+      if (checkingTitle === 'no title' || checkingTitle === 'stop word') {
+        continue;
+      }
 
-            news.push({
-                title,
-                link: item,
-                pubDate: generateDate(),
-                description: `<img src='${
-                    image[0].attribs.src
-                }' />${html.replace(
-                    /\n/g,
-                    '',
-                )}<br><div>This post appeared first on investingnews.com</div>`,
-            });
-        }
+      const image = $(article).find('img').attr('src');
 
-        return news;
-    })
-    .then(async (data) => {
-        const adapter = new JSONFile(pathToDataBase);
-        const dataBase = new Low(adapter);
-        await dataBase.read();
-        const { item } = dataBase.data;
+      if (checkImage(image) === 'no image') {
+        continue;
+      }
 
-        if (item.length <= 0) {
-            // add new news if there is no news in database
-            item.unshift(...data);
-            await dataBase.write();
-        } else {
-            data.filter((news) =>
-                !item.map((el) => el.title).includes(news.title)
-                    ? item.unshift(news)
-                    : null,
-            );
-        }
-        // remove news if it is more than 100
-        for (let i = 0; i < item.length; i += 1) {
-            if (i > 100) {
-                item.splice(i);
-            }
-        }
+      const description = cleanHTML(article, {
+        '.image': 'remove',
+        '.article-pitch-container': 'remove',
+        '.dfp-ads': 'remove',
+        '.company-card-vue-component': 'remove',
+        '.interad': 'remove',
+        a: 'unwrap',
+      });
 
-        await dataBase.write();
-    })
-    .then(async () => {
-        const xml = baseXML(
-            'https://investingnews.com/featured/',
-            'INVESTING NEWS',
-            'Get the latest news from Investing News',
-        );
-        const jsonNews = fs.readFileSync(pathToDataBase, 'utf8');
+      news.push({
+        title,
+        link: item,
+        pubDate: generateDate(),
+        description: `<img src=${image} /> ${description.replace(
+          /\n/g,
+          '',
+        )}<br><div>This post appeared first on fool.com</div>`,
+      });
+    }
 
-        const xmlNews = convert.json2xml(jsonNews, {
-            compact: true,
-            ignoreComment: false,
-            ignoreText: false,
-            spaces: 4,
-            indentAttributes: true,
-            indentCdata: true,
-        });
+    return news;
+  })
+  .then(async (news) => {
+    addNewsToDB(news, 'foolInvestingNews.json');
+  })
+  .then(() => {
+    const xml = baseXML(
+      'https://www.fool.com/investing/',
+      'INVESTING NEWS FROM THE MOTLEY FOOL',
+      'Get the latest news from the Motley Fool',
+    );
 
-        fs.writeFile(
-            // change it before sending to server
-            // '/home/godzillanewz/public_html/investingNews.xml',
-            './xml/investingNews.xml',
-            `${xml + xmlNews}</channel></rss>`,
-            (err) => {
-                if (err) throw err;
-                console.log(
-                    `The file has been saved! ${new Date().toLocaleDateString(
-                        'en-uk',
-                        {
-                            // weekday: 'long',
-                            year: 'numeric',
-                            month: 'numeric',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                        },
-                    )}`,
-                );
-            },
-        );
-    })
-    .catch((err) => {
-        throw err;
-    })
+    generateXML(
+      'foolInvestingNews.json',
+      xml,
+      '/home/godzillanewz/public_html/foolInvestingNews.xml',
+    );
+  })
+  .catch((error) => {
+    console.log(error);
+  });

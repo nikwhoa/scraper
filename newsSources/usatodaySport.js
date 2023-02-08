@@ -25,7 +25,7 @@ const getNews = new Promise((resolve, reject) => {
 
             article.filter((i, el) => {
                 if (el.attribs.href !== undefined) {
-                    if (!el.attribs.href.includes('in-depth')) {
+                    if (!el.attribs.href.includes('in-depth') && !el.attribs.href.includes('usatodayspecial') && !el.attribs.href.includes('admeter')) {
                         news.push({
                             link: `https://www.usatoday.com${$(el).attr(
                                 'href',

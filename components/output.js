@@ -1,6 +1,5 @@
 import { Low, JSONFile } from 'lowdb';
 import fs from 'fs';
-import convert from 'xml-js';
 import connectDatabase from '../connectDatabase.js';
 
 const cnbcEconomy = connectDatabase('cnbcEconomy.json').then(async (data) => {
@@ -31,13 +30,30 @@ const investingNews = connectDatabase('investingNews.json').then(
     },
 );
 
+const foolInvestingNews  = connectDatabase('foolInvestingNews.json').then(
+    async (data) => {
+        const adapterfoolInvestingNews = new JSONFile(data);
+        const foolInvestingNewsDB = new Low(adapterfoolInvestingNews);
+        await foolInvestingNewsDB.read();
+        const { item } = foolInvestingNewsDB.data;
+
+        const output = item.map((item) => {
+            return item.title + ' ' + '<br><b>' + item.pubDate + '</b>';
+        });
+
+        return output;
+    },
+);
+
 const writeOutput = async () => {
     const cnbcEconomyResult = await cnbcEconomy;
     const investingNewsResult = await investingNews;
+    const foolInvestingNewsResult = await foolInvestingNews;
 
     const output = {
         cnbcEconomy: cnbcEconomyResult,
         investingNews: investingNewsResult,
+        foolInvestingNews: foolInvestingNewsResult,
     };
 
     fs.writeFile(
