@@ -15,5 +15,6 @@ module.exports = {
     "no-await-in-loop": "off",
     "import/extensions": "off",
     "array-callback-return": "off",
+    "no-continue": "off",
   },
 };

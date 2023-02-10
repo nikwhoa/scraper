@@ -10,10 +10,7 @@ import addNewsToDB from '../components/addNewsToDB.js';
 import generateXML from '../components/generateXML.js';
 
 new Promise((resolve, reject) => {
-  getNewsFromSource(
-    'https://www.fool.com/investing-news',
-    '#aggregator-article-container .flex',
-  )
+  getNewsFromSource('https://www.geekwire.com/', 'article.teaser')
     .then((data) => {
       const links = [];
 
@@ -22,8 +19,8 @@ new Promise((resolve, reject) => {
 
         /* It has to be change for others source */
         if (
-          !$(el).find('a').attr('href').includes('the-ascent') &&
-          !$(el).find('a').attr('href').includes('retirement')
+          !$(el).find('a').attr('href').includes('geekwire-') &&
+          !$(el).find('a').attr('href').includes('sponsor-post')
         ) {
           links.push($(el).find('a').attr('href'));
         }
@@ -38,14 +35,12 @@ new Promise((resolve, reject) => {
     });
 })
   .then(async (data) => {
-    const urls = data.map((url) => 'https://www.fool.com' + url);
-
     const news = [];
 
-    for (const item of urls) {
+    for (const item of data) {
       const { data } = await axios.get(item);
       const $ = cheerio.load(data);
-      const article = $('.tailwind-article-body');
+      const article = $('.entry-content');
 
       const title = $('h1').text();
 
@@ -56,19 +51,23 @@ new Promise((resolve, reject) => {
         continue;
       }
 
-      const image = $(article).find('img').attr('src');
+      const image = $(article)
+        .find('figure.wp-block-image')
+        .find('img')
+        .attr('src');
 
       if (checkImage(image) === 'no image') {
         continue;
       }
 
       const description = cleanHTML(article.html(), {
-        '.image': 'remove',
-        '.article-pitch-container': 'remove',
-        '.dfp-ads': 'remove',
-        '.company-card-vue-component': 'remove',
-        '.interad': 'remove',
-
+        '.wp-block-pullquote': 'remove',
+        '.wp-block-image': 'remove',
+        '#ad-300x250_mid_mobile': 'remove',
+        '#ad-300x250_mobile_article_bottom': 'remove',
+        '#ad-300x250_mobile': 'remove',
+        figure: 'remove',
+        figcaption: 'remove',
         a: 'unwrap',
       });
 
@@ -86,7 +85,7 @@ new Promise((resolve, reject) => {
     return news;
   })
   .then(async (news) => {
-    addNewsToDB(news, 'foolInvestingNews.json');
+    addNewsToDB(news, 'geekwire.json');
   })
   .then(() => {
     const xml = baseXML(
@@ -96,10 +95,10 @@ new Promise((resolve, reject) => {
     );
 
     generateXML(
-      'foolInvestingNews.json',
+      'geekwire.json',
       xml,
-      'xml/foolInvestingNews.xml',
-    //   '/home/godzillanewz/public_html/foolInvestingNews.xml',
+      'xml/geekwire.xml',
+      //   '/home/godzillanewz/public_html/geekwire.xml',
     );
   })
   .catch((error) => {

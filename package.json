@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node foxnews.js",
-    "usatodaySport": "node newsSources/usatodaySport.js"
+    "usatodaySport": "node newsSources/usatodaySport.js",
+    "foolInvestingNews": "node newsSources/foolInvestingNews.js"
   },
   "author": "",
   "license": "ISC",
