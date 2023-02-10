@@ -4,18 +4,18 @@ import baseXML from '../components/baseXML.js';
 import generateDate from '../components/generateDate.js';
 import getNewsFromSource from '../components/getNewsFromSource.js';
 import checkImage from '../components/checkImage.js';
-import cleanHTML from '../components/cleanHTML.js';
+import cleanHTML, { hasSelectorClean } from '../components/cleanHTML.js';
 import checkTitle from '../components/checkTitle.js';
 import addNewsToDB from '../components/addNewsToDB.js';
 import generateXML from '../components/generateXML.js';
 
 const getNews = new Promise((resolve, reject) => {
   getNewsFromSource(
-    'https://www.fool.com/investing-news',
-    '#aggregator-article-container .flex',
+    'https://cryptonews.com/',
+    '.category_contents_details .article-item',
   )
     .then((data) => {
-      let links = [];
+      const links = [];
 
       data.filter((i, el) => {
         const $ = cheerio.load(el);
@@ -33,20 +33,20 @@ const getNews = new Promise((resolve, reject) => {
     })
     .then((urls) => {
       if (urls.length <= 0) throw new Error();
+
       resolve(urls);
       reject(new Error('Links not found'));
     });
 })
-  .then(async (data) => {
-    const urls = data.map((url) => 'https://www.fool.com' + url);
+  .then(async (links) => {
+    const urls = links.map((url) => `https://cryptonews.com${url}`);
 
     const news = [];
 
     for (const item of urls) {
       const { data } = await axios.get(item);
       const $ = cheerio.load(data);
-      const article = $('.tailwind-article-body').html();
-
+      const article = $('.article-single__content');
       const title = $('h1').text();
 
       /* Check if title is empty or contains stop words */
@@ -56,21 +56,36 @@ const getNews = new Promise((resolve, reject) => {
         continue;
       }
 
-      const image = $(article).find('img').attr('src');
+      const image = $(article).find('.content-img').attr('src');
 
       if (checkImage(image) === 'no image') {
         continue;
       }
 
-      const description = cleanHTML(article, {
-        '.image': 'remove',
-        '.article-pitch-container': 'remove',
-        '.dfp-ads': 'remove',
-        '.company-card-vue-component': 'remove',
-        '.interad': 'remove',
+      $(article).find('p:contains("Disclaimer")').remove();
 
+      $(article)
+        .find('p')
+        .filter(function () {
+          return $(this).contents().length === 1;
+        })
+        .children('a')
+        .filter(function () {
+          return $(this).contents().length === 1;
+        })
+        .children('strong')
+        .remove();
+
+      const description = cleanHTML(article.html(), {
+        'figure.media': 'remove',
+        'figure.image': 'remove',
+        '.dslot': 'remove',
+        '.raw-html-embed': 'remove',
         a: 'unwrap',
+        a: 'remove',
       });
+
+
 
       news.push({
         title,
@@ -86,19 +101,19 @@ const getNews = new Promise((resolve, reject) => {
     return news;
   })
   .then(async (news) => {
-    addNewsToDB(news, 'foolInvestingNews.json');
+    await addNewsToDB(news, 'cryptonews.json');
   })
   .then(() => {
     const xml = baseXML(
-      'https://www.fool.com/investing/',
-      'INVESTING NEWS FROM THE MOTLEY FOOL',
-      'Get the latest news from the Motley Fool',
+      'https://cryptonews.com/',
+      'Latest Cryptocurrency News',
+      'Breaking crypto news about the latest Bitcoin, Ethereum, Blockchain, NFTs, and Altcoin trends and happenings.',
     );
 
     generateXML(
-      'foolInvestingNews.json',
+      'cryptonews.json',
       xml,
-      '/home/godzillanewz/public_html/foolInvestingNews.xml',
+      '/home/godzillanewz/public_html/cryptonews.xml',
     );
   })
   .catch((error) => {

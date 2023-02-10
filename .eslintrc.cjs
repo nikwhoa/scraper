@@ -13,6 +13,7 @@ module.exports = {
     indent: "off",
     "no-restricted-syntax": "off",
     "no-await-in-loop": "off",
-    "import/extensions": "off"
+    "import/extensions": "off",
+    "array-callback-return": "off",
   },
 };

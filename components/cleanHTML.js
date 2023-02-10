@@ -16,21 +16,21 @@ const cleanHTML = (html, selectors) => {
     }
   });
 
-  //   switch (operation) {
-  //     case 'remove':
-  //       selectors.forEach((selector) => {
-  //         $(selector).remove();
-  //       });
-  //       break;
-  //     case 'unwrap':
-  //       selectors.forEach((selector) => {
-  //         $(selector).contents().unwrap();
-  //       });
-  //       break;
-  //     default:
-  //       break;
-  //   }
+  $('h1').remove();
+  $('html').contents().unwrap();
 
+  return $.html().replace(/<body>/g, '').replace(/<\/body>/g, '').replace(/<head>/g, '').replace(/<\/head>/g, '');
+};
+
+export const hasSelectorClean = (html, selector, hasSelector) => {
+  const $ = cheerio.load(html);
+
+  $(`${selector}:has(${hasSelector})`).filter(function () {
+    // check links to others news inside article
+    if ($(this).contents().length === 2) {
+      $(this).remove();
+    }
+  });
   return $.html();
 };
 
