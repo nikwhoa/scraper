@@ -98,8 +98,8 @@ new Promise((resolve, reject) => {
     generateXML(
       'foolInvestingNews.json',
       xml,
-      'xml/foolInvestingNews.xml',
-    //   '/home/godzillanewz/public_html/foolInvestingNews.xml',
+    //   'xml/foolInvestingNews.xml',
+      '/home/godzillanewz/public_html/foolInvestingNews.xml',
     );
   })
   .catch((error) => {
