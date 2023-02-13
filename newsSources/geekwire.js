@@ -75,7 +75,7 @@ new Promise((resolve, reject) => {
         title,
         link: item,
         pubDate: generateDate(),
-        description: `<img src="${image}" /> ${description.replace(
+        description: `<img src='${image}' /> ${description.replace(
           /\n/g,
           '',
         )}<br><div>This post appeared first on fool.com</div>`,
