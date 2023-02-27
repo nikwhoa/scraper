@@ -72,6 +72,7 @@ new Promise((resolve, reject) => {
         '.related-content': 'remove',
         '.gallery': 'remove',
         '.ad-slot': 'remove',
+        '.video-resource': 'remove',
         a: 'unwrap',
       });
 
@@ -79,7 +80,7 @@ new Promise((resolve, reject) => {
         title: title.replace(/\n/g, '').replace(/  +/g, '').replace(/ +$/, ''),
         link: item,
         pubDate: generateDate(),
-        description: `<img src="${image}" /> ${description.replace(
+        description: `<img src="${image.slice(0, image.indexOf('g?') + 1)}" /> ${description.replace(
           /\n/g,
           '',
         )}<br><div>This post appeared first on cnn.com</div>`,
