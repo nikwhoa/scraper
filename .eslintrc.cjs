@@ -16,5 +16,6 @@ module.exports = {
     "import/extensions": "off",
     "array-callback-return": "off",
     "no-continue": "off",
+    "no-console": "off"
   },
 };

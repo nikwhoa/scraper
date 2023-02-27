@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node foxnews.js",
     "usatodaySport": "node newsSources/usatodaySport.js",
-    "foolInvestingNews": "node newsSources/foolInvestingNews.js"
+    "foolInvestingNews": "node newsSources/foolInvestingNews.js",
+    "cnnnews": "node newsSources/cnnWorld.js"
   },
   "author": "",
   "license": "ISC",

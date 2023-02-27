@@ -2,8 +2,8 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 
 const getNewsFromSource = async (url, selector) => {
-    const response = await axios.get(url).then((response) => {
-        const $ = cheerio.load(response.data);
+    const response = await axios.get(url).then((res) => {
+        const $ = cheerio.load(res.data);
         const data = $(selector);
         return data;
     });

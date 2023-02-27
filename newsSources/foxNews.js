@@ -76,6 +76,7 @@ const getNews = new Promise((resolve, reject) => {
             $('.ad-container').remove();
             $('.caption').remove();
             $('.contain').remove();
+            $('.overlay').remove();
 
             let image = '';
 
