@@ -94,7 +94,7 @@ const getNews = new Promise((resolve, reject) => {
         description: `<img src=${image} /> ${description.replace(
           /\n/g,
           '',
-        )}<br><div>This post appeared first on fool.com</div>`,
+        )}<br><div>This post appeared first on cryptonews.com</div>`,
       });
     }
 
