@@ -71,6 +71,8 @@ new Promise((resolve, reject) => {
         '.footnote': 'remove',
         '.related-content': 'remove',
         '.gallery': 'remove',
+        '.source': 'remove',
+        '.highlights': 'remove',
         '.ad-slot': 'remove',
         '.video-resource': 'remove',
         a: 'unwrap',
