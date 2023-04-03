@@ -59,11 +59,13 @@ const foolInvestingNews  = connectDatabase('foolInvestingNews.json').then(
 );
 
 const writeOutput = async () => {
+    const cnnWorldResult = await cnnWorld;
     const cnbcEconomyResult = await cnbcEconomy;
     const investingNewsResult = await investingNews;
     const foolInvestingNewsResult = await foolInvestingNews;
 
     const output = {
+        cnnWorld: cnnWorldResult,
         cnbcEconomy: cnbcEconomyResult,
         investingNews: investingNewsResult,
         foolInvestingNews: foolInvestingNewsResult,
