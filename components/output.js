@@ -1,6 +1,20 @@
+/* eslint-disable arrow-body-style */
 import { Low, JSONFile } from 'lowdb';
 import fs from 'fs';
 import connectDatabase from '../connectDatabase.js';
+
+const usaTodaySports = connectDatabase('usatodaySport.json').then(async (data) => {
+    const adapterusaTodaySports = new JSONFile(data);
+    const usaTodaySportsDB = new Low(adapterusaTodaySports);
+    await usaTodaySportsDB.read();
+    const { item } = usaTodaySportsDB.data;
+
+    const output = item.map((item) => {
+        return `${item.title} <br><b>${item.pubDate}</b>`;
+    });
+
+    return output;
+});
 
 const cnnWorld = connectDatabase('cnnWorld.json').then(async (data) => {
     const adaptercnnWorld = new JSONFile(data);
@@ -59,12 +73,14 @@ const foolInvestingNews  = connectDatabase('foolInvestingNews.json').then(
 );
 
 const writeOutput = async () => {
+    const usaTodaySportsResult = await usaTodaySports;
     const cnnWorldResult = await cnnWorld;
     const cnbcEconomyResult = await cnbcEconomy;
     const investingNewsResult = await investingNews;
     const foolInvestingNewsResult = await foolInvestingNews;
 
     const output = {
+        usaTodaySports: usaTodaySportsResult,
         cnnWorld: cnnWorldResult,
         cnbcEconomy: cnbcEconomyResult,
         investingNews: investingNewsResult,
