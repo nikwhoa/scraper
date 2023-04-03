@@ -14,10 +14,10 @@
 		},
 		{
 			"type": "npm",
-			"script": "cnnnews",
+			"script": "cnnWorld",
 			"problemMatcher": [],
-			"label": "npm: cnnnews",
-			"detail": "node newsSources/cnnnews.js",
+			"label": "npm: cnnWorld",
+			"detail": "node newsSources/cnnWorld.js",
 			"group": {
 				"kind": "build",
 				"isDefault": false,

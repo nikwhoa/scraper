@@ -1,5 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import * as dotenv from 'dotenv';
 import baseXML from '../components/baseXML.js';
 import generateDate from '../components/generateDate.js';
 import getNewsFromSource from '../components/getNewsFromSource.js';
@@ -8,6 +9,8 @@ import cleanHTML from '../components/cleanHTML.js';
 import checkTitle from '../components/checkTitle.js';
 import addNewsToDB from '../components/addNewsToDB.js';
 import generateXML from '../components/generateXML.js';
+
+dotenv.config();
 
 new Promise((resolve, reject) => {
   getNewsFromSource(
@@ -23,6 +26,7 @@ new Promise((resolve, reject) => {
         /* It has to be change for others source */
         if (
           !$(el).attr('href').includes('cnn-underscored') &&
+          !$(el).attr('href').includes('video') &&
           !$(el).attr('href').includes('style')
         ) {
           links.push($(el).attr('href'));
@@ -63,6 +67,7 @@ new Promise((resolve, reject) => {
       }
 
       $(article).find('p:contains("CNN")').remove();
+      $(article).find('p:contains("Picture of the day")').remove();
       $(article).find('p:contains("CNN\'s")').remove();
 
       const description = cleanHTML(article.html(), {
@@ -104,8 +109,9 @@ new Promise((resolve, reject) => {
     generateXML(
       'cnnWorld.json',
       xml,
+      `${process.env.PATHTOXML}cnnWorld.xml`,
       // 'xml/cnnWorld.xml',
-      '/home/godzillanewz/public_html/cnnWorld.xml',
+      // '/home/godzillanewz/public_html/cnnWorld.xml',
     );
   })
   .catch((error) => {
