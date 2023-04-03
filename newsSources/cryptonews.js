@@ -1,5 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import * as dotenv from 'dotenv';
 import baseXML from '../components/baseXML.js';
 import generateDate from '../components/generateDate.js';
 import getNewsFromSource from '../components/getNewsFromSource.js';
@@ -8,6 +9,8 @@ import cleanHTML, { hasSelectorClean } from '../components/cleanHTML.js';
 import checkTitle from '../components/checkTitle.js';
 import addNewsToDB from '../components/addNewsToDB.js';
 import generateXML from '../components/generateXML.js';
+
+dotenv.config();
 
 const getNews = new Promise((resolve, reject) => {
   getNewsFromSource(
@@ -63,6 +66,7 @@ const getNews = new Promise((resolve, reject) => {
       }
 
       $(article).find('p:contains("Disclaimer")').remove();
+      $(article).find('p:contains("Related Articles")').remove();
 
       $(article)
         .find('p')
@@ -84,8 +88,6 @@ const getNews = new Promise((resolve, reject) => {
         a: 'unwrap',
         a: 'remove',
       });
-
-
 
       news.push({
         title,
@@ -113,7 +115,7 @@ const getNews = new Promise((resolve, reject) => {
     generateXML(
       'cryptonews.json',
       xml,
-      '/home/godzillanewz/public_html/cryptonews.xml',
+      `${process.env.PATHTOXML}cryptonews.xml`,
     );
   })
   .catch((error) => {
