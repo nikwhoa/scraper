@@ -2,6 +2,19 @@ import { Low, JSONFile } from 'lowdb';
 import fs from 'fs';
 import connectDatabase from '../connectDatabase.js';
 
+const cnnWorld = connectDatabase('cnnWorld.json').then(async (data) => {
+    const adaptercnnWorld = new JSONFile(data);
+    const cnnWorldDB = new Low(adaptercnnWorld);
+    await cnnWorldDB.read();
+    const { item } = cnnWorldDB.data;
+
+    const output = item.map((item) => {
+        return item.title + ' ' + '<br><b>' + item.pubDate + '</b>';
+    });
+
+    return output;
+});
+
 const cnbcEconomy = connectDatabase('cnbcEconomy.json').then(async (data) => {
     const adaptercnbcEconomy = new JSONFile(data);
     const cnbcEconomyDB = new Low(adaptercnbcEconomy);
