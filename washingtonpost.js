@@ -1,6 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import * as dotenv from 'dotenv';
 import {join, dirname, resolve} from 'path';
 import {Low, JSONFile} from 'lowdb';
 import {fileURLToPath} from 'url';
@@ -14,6 +15,8 @@ const file = join(__dirname, './dataBase/washingtonpost.json');
 const adapter = new JSONFile(file);
 const db = new Low(adapter);
 await db.read();
+
+dotenv.config();
 
 // if database is empty, create base for it
 if (!db.data) {
@@ -126,8 +129,7 @@ const gettingNews = new Promise((resolve, reject) => {
         });
 
         fs.writeFile(
-            '/home/godzillanewz/public_html/washingtonpost.xml',
-            // 'xml/washingtonpost.xml',
+            `${process.env.PATHTOXML}washingtonpost.xml`,
             xml + xmlNews + '</channel></rss>',
             (err) => {
                 if (err) throw err;
