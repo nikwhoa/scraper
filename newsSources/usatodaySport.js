@@ -2,12 +2,15 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable import/extensions */
 import axios from 'axios';
+import * as dotenv from 'dotenv';
 import * as cheerio from 'cheerio';
 import { Low, JSONFile } from 'lowdb';
 import fs from 'fs';
 import convert from 'xml-js';
 import connectDatabase from '../connectDatabase.js';
 import baseXML from '../components/baseXML.js';
+
+dotenv.config();
 
 let pathToDataBase = '';
 const db = connectDatabase('usatodaySport.json').then((path) => {
@@ -96,10 +99,6 @@ const getNews = new Promise((resolve, reject) => {
           continue;
         }
 
-        if (item.description === undefined && item.description.length < 10 && item.description === null) {
-            continue;
-        }
-
         item.description = `<img src='${item.image}' />${html.replace(
           /"/g,
           "'",
@@ -153,12 +152,12 @@ const getNews = new Promise((resolve, reject) => {
       indentAttributes: true,
       indentCdata: true,
     });
-
     fs.writeFile(
       // change it before sending to server
-      '/home/godzillanewz/public_html/usaTodaySports.xml',
-    //   './xml/usaTodaySports.xml',
-      xml + xmlNews + '</channel></rss>',
+      // '/home/godzillanewz/public_html/usaTodaySports.xml',
+      // './xml/usaTodaySports.xml',
+      `${process.env.PATHTOXML}usaTodaySports.xml`,
+      `${xml} ${xmlNews} </channel></rss>`,
       (err) => {
         if (err) throw err;
         console.log(
