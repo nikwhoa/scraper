@@ -3,6 +3,47 @@ import { Low, JSONFile } from 'lowdb';
 import fs from 'fs';
 import connectDatabase from '../connectDatabase.js';
 
+const generateOutput = async (filename) => {
+  connectDatabase(filename).then(async (data) => {
+    const adapter = new JSONFile(data);
+    const db = new Low(adapter);
+    await db.read();
+    const { item } = db.data;
+
+    const output = item.map((item) => {
+      return `${item.title} <br><b>${item.pubDate}</b>`;
+    });
+
+    return output;
+  });
+};
+
+// const geekwire = connectDatabase('geekwire.json').then(async (data) => {
+//     const adaptergeekwire = new JSONFile(data);
+//     const geekwireDB = new Low(adaptergeekwire);
+//     await geekwireDB.read();
+//     const { item } = geekwireDB.data;
+
+//     const output = item.map((item) => {
+//         return `${item.title} <br><b>${item.pubDate}</b>`;
+//     });
+
+//     return output;
+// });
+
+const nbcBusiness = connectDatabase('nbcBusiness.json').then(async (data) => {
+  const adapternbcBusiness = new JSONFile(data);
+  const nbcBusinessDB = new Low(adapternbcBusiness);
+  await nbcBusinessDB.read();
+  const { item } = nbcBusinessDB.data;
+
+  const output = item.map((item) => {
+    return `${item.title} <br><b>${item.pubDate}</b>`;
+  });
+
+  return output;
+});
+
 const foxnews = connectDatabase('foxNews.json').then(async (data) => {
   const adapterfoxnews = new JSONFile(data);
   const foxnewsDB = new Low(adapterfoxnews);
@@ -116,6 +157,8 @@ const foolInvestingNews = connectDatabase('foolInvestingNews.json').then(
 );
 
 const writeOutput = async () => {
+  const geekwireResult = await generateOutput('geekwire.json');
+  const nbcBusinessResult = await nbcBusiness;
   const foxnewsResult = await foxnews;
   const cryptonewsResult = await cryptonews;
   const washingtonpostResult = await washingtonpost;
@@ -126,6 +169,8 @@ const writeOutput = async () => {
   const foolInvestingNewsResult = await foolInvestingNews;
 
   const output = {
+    geekwire: geekwireResult,
+    nbcBusiness: nbcBusinessResult,
     foxnews: foxnewsResult,
     cryptonews: cryptonewsResult,
     washingtonpost: washingtonpostResult,
