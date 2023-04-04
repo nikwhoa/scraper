@@ -3,6 +3,19 @@ import { Low, JSONFile } from 'lowdb';
 import fs from 'fs';
 import connectDatabase from '../connectDatabase.js';
 
+const foxnews = connectDatabase('foxnews.json').then(async (data) => {
+  const adapterfoxnews = new JSONFile(data);
+  const foxnewsDB = new Low(adapterfoxnews);
+  await foxnewsDB.read();
+  const { item } = foxnewsDB.data;
+
+  const output = item.map((item) => {
+    return `${item.title} <br><b>${item.pubDate}</b>`;
+  });
+
+  return output;
+});
+
 const cryptonews = connectDatabase('cryptonews.json').then(async (data) => {
   const adaptercryptonews = new JSONFile(data);
   const cryptonewsDB = new Low(adaptercryptonews);
@@ -103,6 +116,7 @@ const foolInvestingNews = connectDatabase('foolInvestingNews.json').then(
 );
 
 const writeOutput = async () => {
+  const foxnewsResult = await foxnews;
   const cryptonewsResult = await cryptonews;
   const washingtonpostResult = await washingtonpost;
   const usaTodaySportsResult = await usaTodaySports;
@@ -112,6 +126,7 @@ const writeOutput = async () => {
   const foolInvestingNewsResult = await foolInvestingNews;
 
   const output = {
+    foxnews: foxnewsResult,
     cryptonews: cryptonewsResult,
     washingtonpost: washingtonpostResult,
     usaTodaySports: usaTodaySportsResult,
