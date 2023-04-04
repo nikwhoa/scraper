@@ -3,7 +3,7 @@ import { Low, JSONFile } from 'lowdb';
 import fs from 'fs';
 import connectDatabase from '../connectDatabase.js';
 
-const foxnews = connectDatabase('foxnews.json').then(async (data) => {
+const foxnews = connectDatabase('foxNews.json').then(async (data) => {
   const adapterfoxnews = new JSONFile(data);
   const foxnewsDB = new Low(adapterfoxnews);
   await foxnewsDB.read();
