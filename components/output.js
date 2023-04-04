@@ -4,7 +4,7 @@ import fs from 'fs';
 import connectDatabase from '../connectDatabase.js';
 
 const generateOutput = async (filename) => {
-  connectDatabase(filename).then(async (data) => {
+  const result = connectDatabase(filename).then(async (data) => {
     const adapter = new JSONFile(data);
     const db = new Low(adapter);
     await db.read();
@@ -16,6 +16,8 @@ const generateOutput = async (filename) => {
 
     return output;
   });
+
+  return result;
 };
 
 // const geekwire = connectDatabase('geekwire.json').then(async (data) => {
