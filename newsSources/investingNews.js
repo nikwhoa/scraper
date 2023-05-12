@@ -142,7 +142,7 @@ const getNews = new Promise((resolve, reject) => {
 
     fs.writeFile(
       // change it before sending to server
-      '/home/godzillanewz/public_html/investingNews.xml',
+      '/var/www/html/investingNews.xml',
       // './xml/investingNews.xml',
       `${xml + xmlNews}</channel></rss>`,
       (err) => {

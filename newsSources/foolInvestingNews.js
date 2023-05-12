@@ -99,7 +99,7 @@ new Promise((resolve, reject) => {
       'foolInvestingNews.json',
       xml,
     //   'xml/foolInvestingNews.xml',
-      '/home/godzillanewz/public_html/foolInvestingNews.xml',
+      '/var/www/html/foolInvestingNews.xml',
     );
   })
   .catch((error) => {

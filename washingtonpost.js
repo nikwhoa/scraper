@@ -117,7 +117,7 @@ const gettingNews = new Promise((resolve, reject) => {
         );
 
         // const jsonNews = fs.readFileSync('./dataBase/washingtonpost.json', 'utf8');
-        const jsonNews = fs.readFileSync('/home/godzillanewz/nodejsapp/dataBase/washingtonpost.json', 'utf8');
+        const jsonNews = fs.readFileSync('/var/www/html/nodejsapp/dataBase/washingtonpost.json', 'utf8');
 
         const xmlNews = convert.json2xml(jsonNews, {
             compact: true,

@@ -25,6 +25,7 @@
     "node-cron": "^3.0.1",
     "node-fetch": "^3.2.4",
     "node-schedule": "^2.1.0",
+    "node-zabbix-sender": "^1.1.0",
     "pretty": "^2.0.0",
     "puppeteer": "^19.7.3",
     "replace-in-file": "^6.3.2",

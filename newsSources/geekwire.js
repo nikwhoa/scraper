@@ -98,7 +98,7 @@ new Promise((resolve, reject) => {
       'geekwire.json',
       xml,
     //   'xml/geekwire.xml',
-        '/home/godzillanewz/public_html/geekwire.xml',
+        '/var/www/html/geekwire.xml',
     );
   })
   .catch((error) => {
