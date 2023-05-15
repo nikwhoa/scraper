@@ -8,6 +8,8 @@ import cleanHTML from '../components/cleanHTML.js';
 import checkTitle from '../components/checkTitle.js';
 import addNewsToDB from '../components/addNewsToDB.js';
 import generateXML from '../components/generateXML.js';
+import ZabbixSender from 'node-zabbix-sender';
+let Sender = new ZabbixSender({host: '127.0.0.1'});
 
 new Promise((resolve, reject) => {
   getNewsFromSource(
