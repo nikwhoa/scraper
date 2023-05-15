@@ -53,7 +53,7 @@ const getNews = new Promise((resolve, reject) => {
                 const $ = cheerio.load(data);
                 $('a').contents().unwrap();
                 $('.HighlightShare-hidden').remove();
-		$('.AddToWatchlistButton-watchlistContainer').remove();
+		        $('.AddToWatchlistButton-watchlistContainer').remove();
                 $('.InlineImage-imageEmbed').remove();
                 $('.ExclusiveContentBucket-exclusiveContentBucket').remove();
                 $('.transition-fade-appear-done').remove();

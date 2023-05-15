@@ -8,6 +8,8 @@ import fs from 'fs';
 import convert from 'xml-js';
 import connectDatabase from '../connectDatabase.js';
 import baseXML from '../components/baseXML.js';
+import ZabbixSender from 'node-zabbix-sender';
+let Sender = new ZabbixSender({host: '127.0.0.1'});
 
 let pathToDataBase = '';
 const db = connectDatabase('nbcBusiness.json').then((path) => {
@@ -99,6 +101,9 @@ const getNews = new Promise((resolve, reject) => {
         const { item } = dataBase.data;
         data.forEach((el) => delete el.image);
 
+        const prevQuantityPosts = item.length;
+        let quantityNewPosts = 0;
+
         if (item.length <= 0) {
             // add new news if there is no news in database
             item.unshift(...data);
@@ -109,6 +114,7 @@ const getNews = new Promise((resolve, reject) => {
                     ? item.unshift(news)
                     : null,
             );
+            quantityNewPosts += (item.length - prevQuantityPosts);
         }
         // remove news if it is more than 100
         for (let i = 0; i < item.length; i += 1) {
@@ -118,8 +124,9 @@ const getNews = new Promise((resolve, reject) => {
         }
 
         await dataBase.write();
+        return quantityNewPosts;
     })
-    .then(async () => {
+    .then(async (quantity) => {
         const xml = baseXML(
             'https://www.nbcnews.com/business',
             'NBC Business',
@@ -156,6 +163,15 @@ const getNews = new Promise((resolve, reject) => {
                         },
                     )}`,
                 );
+                Sender.addItem('Zabbix server', 'nbcBusiness', quantity);
+                Sender.send(function(err, res) {
+                        if (err) {
+                            throw err;
+                    }
+            
+                    // print the response object
+                   //console.dir(res);
+                });
             },
         );
     })
