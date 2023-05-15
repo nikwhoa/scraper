@@ -48,7 +48,7 @@ const writeOutput = async () => {
   };
 
   fs.writeFile(
-    '/home/godzillanewz/public_html/parseroutput.json',
+    '/var/www/html/parseroutput.json',
     JSON.stringify(output),
     (err) => {
       if (err) throw err;
