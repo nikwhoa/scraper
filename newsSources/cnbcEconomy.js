@@ -9,7 +9,7 @@ import convert from 'xml-js';
 import connectDatabase from '../connectDatabase.js';
 import baseXML from '../components/baseXML.js';
 import ZabbixSender from 'node-zabbix-sender';
-let Sender = new ZabbixSender({host: '127.0.0.1'});
+let Sender = new ZabbixSender({ host: '127.0.0.1' });
 
 let pathToDataBase = '';
 const db = connectDatabase('cnbcEconomy.json').then((path) => {
@@ -53,7 +53,7 @@ const getNews = new Promise((resolve, reject) => {
                 const $ = cheerio.load(data);
                 $('a').contents().unwrap();
                 $('.HighlightShare-hidden').remove();
-		        $('.AddToWatchlistButton-watchlistContainer').remove();
+                $('.AddToWatchlistButton-watchlistContainer').remove();
                 $('.InlineImage-imageEmbed').remove();
                 $('.ExclusiveContentBucket-exclusiveContentBucket').remove();
                 $('.transition-fade-appear-done').remove();
@@ -140,15 +140,15 @@ const getNews = new Promise((resolve, reject) => {
                     )}`,
                 );
                 Sender.addItem('Zabbix server', 'cnbcEconomy', quantity);
-        Sender.send(function(err, res) {
-                 if (err) {
+                Sender.send(function (err, res) {
+                    if (err) {
                         throw err;
-        }
+                    }
 
-        // print the response object
-        //console.dir(res);
-        });
-        //console.log('New posts:', quantity);
+                    // print the response object
+                    //console.dir(res);
+                });
+                //console.log('New posts:', quantity);
             },
         );
     })

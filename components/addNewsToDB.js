@@ -8,7 +8,7 @@ const addNewsToDB = async (data, pathToFile) => {
   const db = await connectDatabase(`${pathToFile}`).then((path) => {
     pathToDataBase = path;
   });
-  
+
   const adapter = new JSONFile(pathToDataBase);
   const dataBase = new Low(adapter);
   await dataBase.read();
@@ -25,6 +25,7 @@ const addNewsToDB = async (data, pathToFile) => {
     ? item.unshift(news)
     : null,
     );
+    quantityNewPosts += (item.length - prevQuantityPosts);
   }
   // remove news if it is more than 100
   for (let i = 0; i < item.length; i += 1) {
@@ -32,7 +33,7 @@ const addNewsToDB = async (data, pathToFile) => {
       item.splice(i);
     }
   }
-  
+
   await dataBase.write().then(() => {
     console.log('New posts:', quantityNewPosts);
     Sender.addItem('Zabbix server', pathToFile.slice(0, -5), quantityNewPosts);
@@ -40,7 +41,7 @@ const addNewsToDB = async (data, pathToFile) => {
       if (err) {
         throw err;
       }
-      
+
     });
   });
   return db;
