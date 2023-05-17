@@ -18,7 +18,7 @@ const getNews = new Promise((resolve, reject) => {
     .get('https://investingnews.com/featured')
     .then((response) => {
       const $ = cheerio.load(response.data);
-      const article = $('.widget__head > a');
+      const article = $('.widget__headline > a');
 
       article.filter((i, el) => {
         urls.push(el.attribs.href || null);
@@ -77,7 +77,11 @@ const getNews = new Promise((resolve, reject) => {
       $('a').contents().unwrap();
       $('hr').remove();
 
-      const image = $('picture > img.rm-hero-media'); // image[0].attribs.src
+      const image = $('picture > img.rm-hero-media').attr('src');; // image[0].attribs.src
+      if (image == undefined){
+        continue;
+      }
+      console.log(image);
       const content = $(
         '.posts-wrapper > .post-partial > article .body-description',
       ).html();
@@ -88,7 +92,7 @@ const getNews = new Promise((resolve, reject) => {
         title,
         link: item,
         pubDate: generateDate(),
-        description: `<img src='${image[0].attribs.src}' />${html.replace(
+        description: `<img src='${image}' />${html.replace(
           /\n/g,
           '',
         )}<br><div>This post appeared first on investingnews.com</div>`,
