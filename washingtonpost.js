@@ -9,6 +9,9 @@ import getNewsUrls from './components/getUrls.js';
 import convert from 'xml-js';
 import fs from 'fs';
 import baseXML from './components/baseXML.js';
+import ZabbixSender from 'node-zabbix-sender';
+let Sender = new ZabbixSender({ host: '127.0.0.1' });
+
 // create and connect to database
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const file = join(__dirname, './dataBase/washingtonpost.json');
@@ -86,6 +89,9 @@ const gettingNews = new Promise((resolve, reject) => {
     .then(async (data) => {
         let {item} = db.data;
 
+        const prevQuantityPosts = item.length;
+        let quantityNewPosts = 0;
+
         if (item.length <= 0) {
             item.unshift(...data);
             await db.write();
@@ -96,6 +102,7 @@ const gettingNews = new Promise((resolve, reject) => {
                     item.unshift(news);
                 }
             });
+            quantityNewPosts += (item.length - prevQuantityPosts);
         }
 
         for (let i = 0; i < item.length; i++) {
@@ -106,9 +113,9 @@ const gettingNews = new Promise((resolve, reject) => {
 
         await db.write();
 
-        return item;
+        return quantityNewPosts;
     })
-    .then(() => {
+    .then((quantity) => {
 
         const xml = baseXML(
             'https://www.washingtonpost.com/politics/',
@@ -146,6 +153,13 @@ const gettingNews = new Promise((resolve, reject) => {
                         },
                     )}`,
                 );
+
+                Sender.addItem('Zabbix server', 'washingtonpost', quantity);
+                Sender.send(function (err, res) {
+                    if (err) {
+                        throw err;
+                    }
+                });
             }
         );
     });
