@@ -9,8 +9,14 @@ import cleanHTML from '../components/cleanHTML.js';
 import checkTitle from '../components/checkTitle.js';
 import addNewsToDB from '../components/addNewsToDB.js';
 import generateXML from '../components/generateXML.js';
+import {Configuration, OpenAIApi} from "openai";
 
 dotenv.config();
+
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openai = new OpenAIApi(configuration);
 
 new Promise((resolve, reject) => {
   getNewsFromSource(
@@ -93,26 +99,62 @@ new Promise((resolve, reject) => {
         a: 'unwrap',
       });
 
-      news.push({
-        title: title.replace(/\n/g, '').replace(/  +/g, '').replace(/ +$/, ''),
-        link: item,
-        pubDate: generateDate(),
-        /*
-        description: `<img src="${image.slice(0, image.indexOf('g?') + 1)}" /> ${description.replace(
-          /\n/g,
-          '',
-        )}<br><div>This post appeared first on ig.com</div>`,*/
-        description: `<img src="https:${image}" /> ${description.replace(
-          /\n/g,
-          '',
-        )}<br><div>This post appeared first on ig.com</div>`,
-      });
+      const gpt_prompt = "Write a well-structured and unique article. Use this link as a reference: "+item+".";
+
+      async function fetchCompletion(attempts = 1) {
+        try {
+          const response = await openai.createCompletion({
+            model: "text-davinci-003",
+            prompt: gpt_prompt,
+            max_tokens: 2048,
+            temperature: 1,
+          });
+      
+          if (response.status === 200) {
+            console.log(response.data.choices[0].text);
+            const gpt_description = response.data.choices[0].text;
+            news.push({
+              title: title.replace(/\n/g, '').replace(/  +/g, '').replace(/ +$/, ''),
+              link: item,
+              pubDate: generateDate(),
+              /*
+              description: `<img src="${image.slice(0, image.indexOf('g?') + 1)}" /> ${description.replace(
+                /\n/g,
+                '',
+              )}<br><div>This post appeared first on ig.com</div>`,*/
+              description: `<img src="https:${image}" /> ${gpt_description}<br><div>This post appeared first on ig.com</div>`,
+            });
+
+            
+          } else {
+            console.log("Error: Unexpected response from OpenAI API");
+            if (attempts < 10) {
+              // Asking again
+              await fetchCompletion(attempts + 1);
+            } else {
+              console.log("Reached maximum number of attempts.");
+            }
+          }
+        } catch (error) {
+          console.log("Error:", error.message);
+          if (attempts < 10) {
+            // Asking again
+            await fetchCompletion(attempts + 1);
+          } else {
+            console.log("Reached maximum number of attempts.");
+          }
+        }
+      }
+      
+      fetchCompletion();
+
+      console.log(item);
     }
 
     return news;
   })
   .then(async (news) => {
-    await addNewsToDB(news, 'ig.json');
+    await addNewsToDB(news, 'ig-test.json');
   })
   .then(() => {
     const xml = baseXML(
@@ -124,7 +166,7 @@ new Promise((resolve, reject) => {
     generateXML(
       'ig.json',
       xml,
-      `${process.env.PATHTOXML}ig.xml`,
+      `${process.env.PATHTOXML}ig-test.xml`,
       // 'xml/ig.xml',
       // '/home/godzillanewz/public_html/ig.xml',
     );

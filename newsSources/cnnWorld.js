@@ -46,8 +46,23 @@ new Promise((resolve, reject) => {
 
     const news = [];
 
+    let count = 0;
+
     for (const item of urls) {
-      const { data } = await axios.get(item);
+      count++;
+      if(count > 10){
+        break;
+      }
+      let data;
+      if (item.startsWith("https://edition.cnn.comhttps://edition.cnn.com")) {
+        let newItem = item;
+        newItem = item.replace("https://edition.cnn.comhttps://edition.cnn.com", "https://edition.cnn.com");
+        const { data: newData } = await axios.get(newItem);
+        data = newData;
+      } else {
+        const { data: newData } = await axios.get(item);
+        data = newData;
+      }
       const $ = cheerio.load(data);
       const article = $('.article__content');
 

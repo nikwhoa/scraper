@@ -14,8 +14,8 @@ dotenv.config();
 
 new Promise((resolve, reject) => {
   getNewsFromSource(
-    'https://www.ig.com/en/news-and-trade-ideas',
-    '.article-category-section-list-item .article-category-section-item a',
+    'https://news.sky.com/technology',
+    'a.sdc-site-tile__headline-link',
   )
     .then((data) => {
       const links = [];
@@ -42,17 +42,25 @@ new Promise((resolve, reject) => {
     });
 })
   .then(async (data) => {
-    const urls = data.map((url) => `https://www.ig.com${url}`);
+    const urls = data.map((url) => `https://news.sky.com/${url}`);
 
     const news = [];
-    const processedTitles = []; // Initialize an array to store processed titles
 
     for (const item of urls) {
-      const { data } = await axios.get(item);
+      let data;
+      if (item.startsWith("https://news.sky.com/https://news.sky.com/")) {
+        let newItem = item;
+        newItem = item.replace("https://news.sky.com/https://news.sky.com/", "https://news.sky.com/");
+        const { data: newData } = await axios.get(newItem);
+        data = newData;
+      } else {
+        const { data: newData } = await axios.get(item);
+        data = newData;
+      }
       const $ = cheerio.load(data);
-      const article = $('.ArticleContent');
+      const article = $('.sdc-site-layout__col >.sdc-article-body');
 
-      const title = $('h1').text();
+      const title = $('.sdc-article-header__long-title').text();
 
       /* Check if title is empty or contains stop words */
       const checkingTitle = checkTitle(title);
@@ -61,16 +69,7 @@ new Promise((resolve, reject) => {
         continue;
       }
 
-      // Check for duplicate title
-      if (processedTitles.includes(title)) {
-        continue; // Skip this iteration if title is a duplicate
-      }
-      
-      // Add the title to processedTitles array
-      processedTitles.push(title);
-
-      const image = $(data).find('.ArticleImage .image-component-root img').attr('src');
-      //console.log("title= "+title);
+      const image = $(data).find('img.sdc-article-image__item').attr('src');
 
       if (checkImage(image) === 'no image') {
         continue;
@@ -80,16 +79,21 @@ new Promise((resolve, reject) => {
       $(article).find('p:contains("Picture of the day")').remove();
       $(article).find('p:contains("CNN\'s")').remove();
 
+      // Delete Read more:
+      const patternToRemove = /<p><strong>Read more[\s\S]*?<\/p>/;
+      const articleHtml = article.html();
+      if (patternToRemove.test(articleHtml)) {
+        article.html(articleHtml.replace(patternToRemove, ''));
+      }
+
       const description = cleanHTML(article.html(), {
-        '.image': 'remove',
-        '.html-embed': 'remove',
-        '.footnote': 'remove',
-        '.related-content': 'remove',
-        '.gallery': 'remove',
-        '.source': 'remove',
-        '.highlights': 'remove',
-        '.ad-slot': 'remove',
-        '.video-resource': 'remove',
+        '.sdc-article-tags__inner': 'remove',
+        '.sdc-article-image__caption-text': 'remove',
+        '.sdc-article-image__visually-hidden': 'remove',
+        '.sdc-article-related-stories__title': 'remove',
+        '.sdc-site-layout-sticky-region': 'remove',
+        '.sdc-article-widget': 'remove',
+        //strong: 'unwrap',
         a: 'unwrap',
       });
 
@@ -97,36 +101,31 @@ new Promise((resolve, reject) => {
         title: title.replace(/\n/g, '').replace(/  +/g, '').replace(/ +$/, ''),
         link: item,
         pubDate: generateDate(),
-        /*
         description: `<img src="${image.slice(0, image.indexOf('g?') + 1)}" /> ${description.replace(
           /\n/g,
           '',
-        )}<br><div>This post appeared first on ig.com</div>`,*/
-        description: `<img src="https:${image}" /> ${description.replace(
-          /\n/g,
-          '',
-        )}<br><div>This post appeared first on ig.com</div>`,
+        )}<br><div>This post appeared first on sky.com</div>`,
       });
     }
 
     return news;
   })
   .then(async (news) => {
-    await addNewsToDB(news, 'ig.json');
+    await addNewsToDB(news, 'skyScienceTech.json');
   })
   .then(() => {
     const xml = baseXML(
-      'https://edition.cnn.com/world',
-      'World News from CNN',
-      'Get the latest news from the CNN',
+      'https://news.sky.com/world/',
+      'Science News from SKY',
+      'Get the latest news from the SKY',
     );
 
     generateXML(
-      'ig.json',
+      'skyScienceTech.json',
       xml,
-      `${process.env.PATHTOXML}ig.xml`,
-      // 'xml/ig.xml',
-      // '/home/godzillanewz/public_html/ig.xml',
+      `${process.env.PATHTOXML}skyScienceTech.xml`,
+      // 'xml/skyScienceTech.xml',
+      // '/home/godzillanewz/public_html/skyScienceTech.xml',
     );
   })
   .catch((error) => {

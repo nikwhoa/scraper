@@ -14,12 +14,12 @@ dotenv.config();
 
 new Promise((resolve, reject) => {
   getNewsFromSource(
-    'https://www.ig.com/en/news-and-trade-ideas',
-    '.article-category-section-list-item .article-category-section-item a',
+    'https://www.nasdaq.com/topic/personal-finance',
+    '.content-feed__card-title-link',
   )
     .then((data) => {
       const links = [];
-
+      
       data.filter((i, el) => {
         const $ = cheerio.load(el);
 
@@ -42,15 +42,29 @@ new Promise((resolve, reject) => {
     });
 })
   .then(async (data) => {
-    const urls = data.map((url) => `https://www.ig.com${url}`);
+    const urls = data.map((url) => `https://www.nasdaq.com${url}`);
 
     const news = [];
-    const processedTitles = []; // Initialize an array to store processed titles
+
+    let count = 0;
 
     for (const item of urls) {
-      const { data } = await axios.get(item);
+      count++;
+      if(count > 1){
+        break;
+      }
+      let data;
+      if (item.startsWith("https://www.nasdaq.comhttps://www.nasdaq.com")) {
+        let newItem = item;
+        newItem = item.replace("https://www.nasdaq.comhttps://www.nasdaq.com", "https://www.nasdaq.com");
+        const { data: newData } = await axios.get(newItem);
+        data = newData;
+      } else {
+        const { data: newData } = await axios.get(item);
+        data = newData;
+      }
       const $ = cheerio.load(data);
-      const article = $('.ArticleContent');
+      const article = $('.body__content');
 
       const title = $('h1').text();
 
@@ -61,35 +75,24 @@ new Promise((resolve, reject) => {
         continue;
       }
 
-      // Check for duplicate title
-      if (processedTitles.includes(title)) {
-        continue; // Skip this iteration if title is a duplicate
-      }
-      
-      // Add the title to processedTitles array
-      processedTitles.push(title);
+      const image = $(data).find('.picture > img').attr('src');
 
-      const image = $(data).find('.ArticleImage .image-component-root img').attr('src');
-      //console.log("title= "+title);
 
       if (checkImage(image) === 'no image') {
         continue;
       }
 
-      $(article).find('p:contains("CNN")').remove();
-      $(article).find('p:contains("Picture of the day")').remove();
-      $(article).find('p:contains("CNN\'s")').remove();
+      $(article).find('p:contains("Find Out:")').remove();
+      $(article).find('p:contains("More From")').next('ul').remove();
+      $(article).find('p:contains("More From")').remove();
+      $(article).find('p > strong').parent('p').remove();
+      $(article).find('script').remove();
+      $(article).contents().filter(function() {
+        return this.nodeType === 8; // 8 обозначает узлы комментариев
+      }).remove();
+      $(article).find(':empty').remove();
 
       const description = cleanHTML(article.html(), {
-        '.image': 'remove',
-        '.html-embed': 'remove',
-        '.footnote': 'remove',
-        '.related-content': 'remove',
-        '.gallery': 'remove',
-        '.source': 'remove',
-        '.highlights': 'remove',
-        '.ad-slot': 'remove',
-        '.video-resource': 'remove',
         a: 'unwrap',
       });
 
@@ -97,36 +100,31 @@ new Promise((resolve, reject) => {
         title: title.replace(/\n/g, '').replace(/  +/g, '').replace(/ +$/, ''),
         link: item,
         pubDate: generateDate(),
-        /*
         description: `<img src="${image.slice(0, image.indexOf('g?') + 1)}" /> ${description.replace(
           /\n/g,
           '',
-        )}<br><div>This post appeared first on ig.com</div>`,*/
-        description: `<img src="https:${image}" /> ${description.replace(
-          /\n/g,
-          '',
-        )}<br><div>This post appeared first on ig.com</div>`,
+        )}<br><div>This post appeared first on nasdaqFinance.com</div>`,
       });
     }
 
     return news;
   })
   .then(async (news) => {
-    await addNewsToDB(news, 'ig.json');
+    await addNewsToDB(news, 'nasdaqFinance.json');
   })
   .then(() => {
     const xml = baseXML(
-      'https://edition.cnn.com/world',
+      'https://www.nasdaq.com/topic/personal-finance',
       'World News from CNN',
       'Get the latest news from the CNN',
     );
 
     generateXML(
-      'ig.json',
+      'nasdaqFinance.json',
       xml,
-      `${process.env.PATHTOXML}ig.xml`,
-      // 'xml/ig.xml',
-      // '/home/godzillanewz/public_html/ig.xml',
+      `${process.env.PATHTOXML}nasdaqFinance.xml`,
+      // 'xml/nasdaqFinance.xml',
+      // '/home/godzillanewz/public_html/nasdaqFinance.xml',
     );
   })
   .catch((error) => {

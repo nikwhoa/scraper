@@ -14,8 +14,8 @@ dotenv.config();
 
 new Promise((resolve, reject) => {
   getNewsFromSource(
-    'https://www.ig.com/en/news-and-trade-ideas',
-    '.article-category-section-list-item .article-category-section-item a',
+    'https://edition.cnn.com/health',
+    '.container_lead-plus-headlines-with-images__link',
   )
     .then((data) => {
       const links = [];
@@ -42,15 +42,24 @@ new Promise((resolve, reject) => {
     });
 })
   .then(async (data) => {
-    const urls = data.map((url) => `https://www.ig.com${url}`);
+    const urls = data.map((url) => `https://edition.cnn.com${url}`);
 
     const news = [];
-    const processedTitles = []; // Initialize an array to store processed titles
+    const processedTitles = [];
 
     for (const item of urls) {
-      const { data } = await axios.get(item);
+      let data;
+      if (item.startsWith("https://edition.cnn.comhttps://edition.cnn.com")) {
+        let newItem = item;
+        newItem = item.replace("https://edition.cnn.comhttps://edition.cnn.com", "https://edition.cnn.com");
+        const { data: newData } = await axios.get(newItem);
+        data = newData;
+      } else {
+        const { data: newData } = await axios.get(item);
+        data = newData;
+      }
       const $ = cheerio.load(data);
-      const article = $('.ArticleContent');
+      const article = $('.article__content');
 
       const title = $('h1').text();
 
@@ -65,12 +74,11 @@ new Promise((resolve, reject) => {
       if (processedTitles.includes(title)) {
         continue; // Skip this iteration if title is a duplicate
       }
-      
+
       // Add the title to processedTitles array
       processedTitles.push(title);
 
-      const image = $(data).find('.ArticleImage .image-component-root img').attr('src');
-      //console.log("title= "+title);
+      const image = $(data).find('img.image__dam-img').attr('src');
 
       if (checkImage(image) === 'no image') {
         continue;
@@ -97,36 +105,31 @@ new Promise((resolve, reject) => {
         title: title.replace(/\n/g, '').replace(/  +/g, '').replace(/ +$/, ''),
         link: item,
         pubDate: generateDate(),
-        /*
         description: `<img src="${image.slice(0, image.indexOf('g?') + 1)}" /> ${description.replace(
           /\n/g,
           '',
-        )}<br><div>This post appeared first on ig.com</div>`,*/
-        description: `<img src="https:${image}" /> ${description.replace(
-          /\n/g,
-          '',
-        )}<br><div>This post appeared first on ig.com</div>`,
+        )}<br><div>This post appeared first on cnn.com</div>`,
       });
     }
 
     return news;
   })
   .then(async (news) => {
-    await addNewsToDB(news, 'ig.json');
+    await addNewsToDB(news, 'cnnhealth.json');
   })
   .then(() => {
     const xml = baseXML(
-      'https://edition.cnn.com/world',
-      'World News from CNN',
+      'https://edition.cnn.com/health',
+      'health News from CNN',
       'Get the latest news from the CNN',
     );
 
     generateXML(
-      'ig.json',
+      'cnnhealth.json',
       xml,
-      `${process.env.PATHTOXML}ig.xml`,
-      // 'xml/ig.xml',
-      // '/home/godzillanewz/public_html/ig.xml',
+      `${process.env.PATHTOXML}cnnhealth.xml`,
+      // 'xml/cnnhealth.xml',
+      // '/home/godzillanewz/public_html/cnnhealth.xml',
     );
   })
   .catch((error) => {

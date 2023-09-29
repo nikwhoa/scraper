@@ -14,8 +14,8 @@ dotenv.config();
 
 new Promise((resolve, reject) => {
   getNewsFromSource(
-    'https://www.ig.com/en/news-and-trade-ideas',
-    '.article-category-section-list-item .article-category-section-item a',
+    'https://www.health.harvard.edu/topics/staying-healthy/all',
+    'div.mt-16 > div > div.mb-16 > div > div.h-full > a',
   )
     .then((data) => {
       const links = [];
@@ -42,15 +42,16 @@ new Promise((resolve, reject) => {
     });
 })
   .then(async (data) => {
-    const urls = data.map((url) => `https://www.ig.com${url}`);
+    const urls = data.map((url) => `${url}`);
 
     const news = [];
     const processedTitles = []; // Initialize an array to store processed titles
 
     for (const item of urls) {
+      console.log(item);
       const { data } = await axios.get(item);
       const $ = cheerio.load(data);
-      const article = $('.ArticleContent');
+      const article = $('.content-repository-content');
 
       const title = $('h1').text();
 
@@ -69,16 +70,12 @@ new Promise((resolve, reject) => {
       // Add the title to processedTitles array
       processedTitles.push(title);
 
-      const image = $(data).find('.ArticleImage .image-component-root img').attr('src');
+      const image = $(data).find('img.ucr-content-image').attr('src');
       //console.log("title= "+title);
 
       if (checkImage(image) === 'no image') {
         continue;
       }
-
-      $(article).find('p:contains("CNN")').remove();
-      $(article).find('p:contains("Picture of the day")').remove();
-      $(article).find('p:contains("CNN\'s")').remove();
 
       const description = cleanHTML(article.html(), {
         '.image': 'remove',
@@ -101,32 +98,32 @@ new Promise((resolve, reject) => {
         description: `<img src="${image.slice(0, image.indexOf('g?') + 1)}" /> ${description.replace(
           /\n/g,
           '',
-        )}<br><div>This post appeared first on ig.com</div>`,*/
-        description: `<img src="https:${image}" /> ${description.replace(
+        )}<br><div>This post appeared first on health.harvard.edu</div>`,*/
+        description: `<img src="${image}" /> ${description.replace(
           /\n/g,
           '',
-        )}<br><div>This post appeared first on ig.com</div>`,
+        )}<br><div>This post appeared first on health.harvard.edu</div>`,
       });
     }
 
     return news;
   })
   .then(async (news) => {
-    await addNewsToDB(news, 'ig.json');
+    await addNewsToDB(news, 'harvard.json');
   })
   .then(() => {
     const xml = baseXML(
-      'https://edition.cnn.com/world',
+      'https://www.health.harvard.edu',
       'World News from CNN',
       'Get the latest news from the CNN',
     );
 
     generateXML(
-      'ig.json',
+      'harvard.json',
       xml,
-      `${process.env.PATHTOXML}ig.xml`,
-      // 'xml/ig.xml',
-      // '/home/godzillanewz/public_html/ig.xml',
+      `${process.env.PATHTOXML}health.harvard.xml`,
+      // 'xml/health.harvard.xml',
+      // '/home/godzillanewz/public_html/health.harvard.xml',
     );
   })
   .catch((error) => {

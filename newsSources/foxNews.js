@@ -83,12 +83,12 @@ const getNews = new Promise((resolve, reject) => {
       let image = '';
 
       if (
-        $('.image-ct').attr('baseimage') === undefined ||
-        $('.image-ct').attr('baseimage') === null
+        $('.image-ct').find('img').attr('src') === undefined ||
+        $('.image-ct').find('img').attr('src') === null
       ) {
         image = $('.featured-image').find('img').attr('src');
       } else {
-        image = $('.image-ct').attr('baseimage');
+        image = $('.image-ct').find('img').attr('src');
       }
 
       $('.featured-image').remove();
