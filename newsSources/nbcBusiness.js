@@ -46,6 +46,7 @@ const getNews = new Promise((resolve, reject) => {
                 if (
                     $(el)
                         .find('.wide-tease-item__image-wrapper')
+                        .find('a')
                         .attr('href')
                         .includes('/business/')
                 ) {
@@ -62,6 +63,7 @@ const getNews = new Promise((resolve, reject) => {
                 }
             });
         })
+        
         .then(() => {
             resolve(news);
         })
@@ -132,6 +134,7 @@ const getNews = new Promise((resolve, reject) => {
             'NBC Business',
             'Get the latest news from NBC Business',
         );
+
         const jsonNews = fs.readFileSync(pathToDataBase, 'utf8');
 
         const xmlNews = convert.json2xml(jsonNews, {

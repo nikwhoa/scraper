@@ -88,7 +88,7 @@ new Promise((resolve, reject) => {
       $(article).find('p > strong').parent('p').remove();
       $(article).find('script').remove();
       $(article).contents().filter(function() {
-        return this.nodeType === 8; // 8 обозначает узлы комментариев
+        return this.nodeType === 8;
       }).remove();
       $(article).find(':empty').remove();
 

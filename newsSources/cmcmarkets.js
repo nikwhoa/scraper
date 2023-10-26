@@ -12,6 +12,33 @@ import generateXML from '../components/generateXML.js';
 
 dotenv.config();
 
+const checkImageExists = async (image) => {
+  return new Promise(async (resolve) => {
+      if (image === undefined || image === null || image === '' || image === ' ' || image.length <= 10) {
+          resolve('no image');
+      }
+
+      try {
+          const response = await axios.get(image);
+          if (response.status === 200) {
+              resolve(image);
+          } else {
+              resolve('no image');
+          }
+      } catch (error) {
+          resolve('no image');
+      }
+  });
+};
+
+function checkForImageNotFoundMessage(html) {
+  const $ = cheerio.load(html);
+  // Здесь вам нужно определить, как вы можете идентифицировать сообщение об отсутствии изображения на странице
+  // Например, если на странице есть элемент с определенным текстом или классом, это может быть признаком отсутствия изображения
+  const imageNotFoundElement = $('#page-title'); // Пример
+  return imageNotFoundElement.length > 0;
+}
+
 new Promise((resolve, reject) => {
   getNewsFromSource(
     'https://www.cmcmarkets.com/en/news-and-analysis',
@@ -47,7 +74,13 @@ new Promise((resolve, reject) => {
     const news = [];
     const processedTitles = []; // Initialize an array to store processed titles
 
-    for (const item of urls) {
+    let count = 0;
+
+    const imagePromises = urls.slice(0, 10).map(async (item) => {
+      count++;
+      if(count > 10){
+        return;
+      }
       const { data } = await axios.get(item);
       const $ = cheerio.load(data);
       const article = $('.article-content');
@@ -58,58 +91,53 @@ new Promise((resolve, reject) => {
       const checkingTitle = checkTitle(title);
 
       if (checkingTitle === 'no title' || checkingTitle === 'stop word') {
-        continue;
+          return; // Skip this iteration if title is not valid
       }
 
       // Check for duplicate title
       if (processedTitles.includes(title)) {
-        continue; // Skip this iteration if title is a duplicate
+          return; // Skip this iteration if title is a duplicate
       }
-      
+
       // Add the title to processedTitles array
       processedTitles.push(title);
 
-      const image = $(data).find('.image-container span img').attr('src');
-      //console.log("title= "+title);
+      const imageUrl = $(data).find('.image-container span img').attr('src');
 
-      if (checkImage(image) === 'no image') {
-        continue;
-      }
+      return checkImageExists(imageUrl).then((image) => {
+        if (image === 'no image' || checkForImageNotFoundMessage(imageUrl)) {
+          return; // Skip this iteration if image is not valid
+        }
 
-      $(article).find('p:contains("CNN")').remove();
-      $(article).find('p:contains("Picture of the day")').remove();
-      $(article).find('p:contains("CNN\'s")').remove();
+        $(article).find('p:contains("CNN")').remove();
+        $(article).find('p:contains("Picture of the day")').remove();
+        $(article).find('p:contains("CNN\'s")').remove();
 
-      const description = cleanHTML(article.html(), {
-        '.image': 'remove',
-        '.html-embed': 'remove',
-        '.footnote': 'remove',
-        '.related-content': 'remove',
-        '.gallery': 'remove',
-        '.source': 'remove',
-        '.highlights': 'remove',
-        '.ad-slot': 'remove',
-        '.video-resource': 'remove',
-        a: 'unwrap',
+        const description = cleanHTML(article.html(), {
+            '.image': 'remove',
+            '.html-embed': 'remove',
+            '.footnote': 'remove',
+            '.related-content': 'remove',
+            '.gallery': 'remove',
+            '.source': 'remove',
+            '.highlights': 'remove',
+            '.ad-slot': 'remove',
+            '.video-resource': 'remove',
+            a: 'unwrap',
+        });
+
+        //console.log("image= " + image);
+
+        news.push({
+            title: title.replace(/\n/g, '').replace(/  +/g, '').replace(/ +$/, ''),
+            link: item,
+            pubDate: generateDate(),
+            description: `<img src="${image}" /> ${description.replace(/\n/g, '')}<br><div>This post appeared first on cmcmarkets.com</div>`,
+        });
       });
+    });
 
-      news.push({
-        title: title.replace(/\n/g, '').replace(/  +/g, '').replace(/ +$/, ''),
-        link: item,
-        pubDate: generateDate(),
-        /*
-        description: `<img src="${image.slice(0, image.indexOf('g?') + 1)}" /> ${description.replace(
-          /\n/g,
-          '',
-        )}<br><div>This post appeared first on cmcmarkets.com</div>`,*/
-        description: `<img src="${image}" /> ${description.replace(
-          /\n/g,
-          '',
-        )}<br><div>This post appeared first on cmcmarkets.com</div>`,
-      });
-    }
-
-    return news;
+    return Promise.all(imagePromises).then(() => news);
   })
   .then(async (news) => {
     await addNewsToDB(news, 'cmcmarkets.json');
