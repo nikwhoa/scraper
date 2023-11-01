@@ -96,6 +96,11 @@ const getNews = new Promise((resolve, reject) => {
           ) {
             continue;
           }
+          const parts = item.image.split("?");
+          item.image = parts[0];
+          if (item.image.startsWith("/")) {
+            item.image = "https://www.usatoday.com"+item.image;
+      }
           
           if (html === null || html === undefined || html.length <= 100) {
             continue;

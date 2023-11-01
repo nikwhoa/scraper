@@ -81,7 +81,6 @@ const getNews = new Promise((resolve, reject) => {
       if (image == undefined){
         continue;
       }
-      console.log(image);
       const content = $(
         '.posts-wrapper > .post-partial > article .body-description',
       ).html();
