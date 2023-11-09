@@ -25,7 +25,6 @@ const getNews = new Promise((resolve, reject) => {
       });
     })
     .then(() => {
-      console.log(urls);
       resolve(urls);
     })
     .catch((error) => {

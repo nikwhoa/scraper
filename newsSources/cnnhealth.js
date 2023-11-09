@@ -87,6 +87,7 @@ new Promise((resolve, reject) => {
       $(article).find('p:contains("CNN")').remove();
       $(article).find('p:contains("Picture of the day")').remove();
       $(article).find('p:contains("CNN\'s")').remove();
+      $(article).find('p:contains("Get CNN")').remove();
 
       const description = cleanHTML(article.html(), {
         '.image': 'remove',
@@ -98,6 +99,7 @@ new Promise((resolve, reject) => {
         '.highlights': 'remove',
         '.ad-slot': 'remove',
         '.video-resource': 'remove',
+        '.factbox_inline-small__title': 'remove',
         a: 'unwrap',
       });
 
