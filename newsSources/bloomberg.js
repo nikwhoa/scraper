@@ -14,8 +14,8 @@ dotenv.config();
 
 new Promise((resolve, reject) => {
   getNewsFromSource(
-    'https://news.sky.com/technology',
-    '.ui-story-headline a',
+    'https://www.bloomberg.com/markets',
+    '.styles_storyBlock__l5VzV > a',
   )
     .then((data) => {
       const links = [];
@@ -33,6 +33,8 @@ new Promise((resolve, reject) => {
         }
       });
 
+      console.log(links);
+
       return links;
     })
     .then((urls) => {
@@ -42,21 +44,16 @@ new Promise((resolve, reject) => {
     });
 })
   .then(async (data) => {
-    const urls = data.map((url) => `https://news.sky.com/${url}`);
+    const urls = data.map((url) => `https://www.bloomberg.com/${url}`);
 
     const news = [];
-
-    let count = 0;
+    const processedTitles = [];
 
     for (const item of urls) {
-      count++;
-      if(count > 10){
-        break;
-      }
       let data;
-      if (item.startsWith("https://news.sky.com/https://news.sky.com/")) {
+      if (item.startsWith("https://www.bloomberg.com/https://www.bloomberg.com/")) {
         let newItem = item;
-        newItem = item.replace("https://news.sky.com/https://news.sky.com/", "https://news.sky.com/");
+        newItem = item.replace("https://www.bloomberg.com/https://www.bloomberg.com/", "https://www.bloomberg.com/");
         const { data: newData } = await axios.get(newItem);
         data = newData;
       } else {
@@ -64,9 +61,10 @@ new Promise((resolve, reject) => {
         data = newData;
       }
       const $ = cheerio.load(data);
-      const article = $('.sdc-site-layout__col >.sdc-article-body');
+      const article = $('.body-content');
 
-      const title = $('.sdc-article-header__long-title').text();
+      const title = $('h1').text();
+      console.log(title);
 
       /* Check if title is empty or contains stop words */
       const checkingTitle = checkTitle(title);
@@ -75,35 +73,38 @@ new Promise((resolve, reject) => {
         continue;
       }
 
-      const image = $(data).find('img.sdc-article-image__item').attr('src');
+      // Check for duplicate title
+      if (processedTitles.includes(title)) {
+        continue; // Skip this iteration if title is a duplicate
+      }
+
+      // Add the title to processedTitles array
+      processedTitles.push(title);
+
+      const image = $(data).find('.lazy-img img').attr('src');
+      console.log(image);
 
       if (checkImage(image) === 'no image') {
         continue;
       }
 
-      $(article).find('p:contains("More from")').remove();
+      $(article).find('p:contains("CNN")').remove();
       $(article).find('p:contains("Picture of the day")').remove();
-      $(article).find('p:contains("Click to")').remove();
-
-      // Delete Read more:
-      const patternToRemove = /<p><strong>Read more[\s\S]*?<\/p>/;
-      const articleHtml = article.html();
-      if (patternToRemove.test(articleHtml)) {
-        article.html(articleHtml.replace(patternToRemove, ''));
-      }
+      $(article).find('p:contains("CNN\'s")').remove();
+      $(article).find('p:contains("Get CNN")').remove();
 
       const description = cleanHTML(article.html(), {
-        '.sdc-article-tags__inner': 'remove',
-        '.sdc-article-image__caption-text': 'remove',
-        '.sdc-article-image__visually-hidden': 'remove',
-        '.sdc-article-related-stories__title': 'remove',
-        '.sdc-site-layout-sticky-region': 'remove',
-        '.sdc-article-widget': 'remove',
-        '.OUTBRAIN': 'remove',
-        'script': 'remove',
-        '.sdc-site-au__teads': 'remove',
-        '.sdc-site-au': 'remove',
-        '': 'remove',
+        '.image': 'remove',
+        '.html-embed': 'remove',
+        '.footnote': 'remove',
+        '.related-content': 'remove',
+        '.gallery': 'remove',
+        '.source': 'remove',
+        '.highlights': 'remove',
+        '.ad-slot': 'remove',
+        '.video-resource': 'remove',
+        '.factbox_inline-small__title': 'remove',
+        '.video-playlist': 'remove',
         a: 'unwrap',
       });
 
@@ -114,29 +115,29 @@ new Promise((resolve, reject) => {
         description: `<img src="${image.slice(0, image.indexOf('g?') + 1)}" /> ${description.replace(
           /\n/g,
           '',
-        )}<br><div>This post appeared first on sky.com</div>`,
+        )}<br><div>This post appeared first on cnn.com</div>`,
       });
     }
 
     return news;
   })
   .then(async (news) => {
-    await addNewsToDB(news, 'skyScienceTech.json');
+    //await addNewsToDB(news, 'cnnhealth.json');
   })
-  .then(() => {
+  .then(() => {/*
     const xml = baseXML(
-      'https://news.sky.com/world/',
-      'Science News from SKY',
-      'Get the latest news from the SKY',
+      'https://www.bloomberg.com/markets',
+      'health News from CNN',
+      'Get the latest news from the CNN',
     );
 
     generateXML(
-      'skyScienceTech.json',
+      'cnnhealth.json',
       xml,
-      `${process.env.PATHTOXML}skyScienceTech.xml`,
-      // 'xml/skyScienceTech.xml',
-      // '/home/godzillanewz/public_html/skyScienceTech.xml',
-    );
+      `${process.env.PATHTOXML}cnnhealth.xml`,
+      // 'xml/cnnhealth.xml',
+      // '/home/godzillanewz/public_html/cnnhealth.xml',
+    );*/
   })
   .catch((error) => {
     console.log(error);

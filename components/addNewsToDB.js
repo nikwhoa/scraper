@@ -1,50 +1,47 @@
 import { Low, JSONFile } from 'lowdb';
 import connectDatabase from '../connectDatabase.js';
 import ZabbixSender from 'node-zabbix-sender';
-let Sender = new ZabbixSender({host: '127.0.0.1'});
+let Sender = new ZabbixSender({ host: '127.0.0.1' });
 
 const addNewsToDB = async (data, pathToFile) => {
-  let pathToDataBase = '';
-  const db = await connectDatabase(`${pathToFile}`).then((path) => {
-    pathToDataBase = path;
-  });
+  try {
+    let pathToDataBase = '';
+    const db = await connectDatabase(`${pathToFile}`).then((path) => {
+      pathToDataBase = path;
+    });
 
-  const adapter = new JSONFile(pathToDataBase);
-  const dataBase = new Low(adapter);
-  await dataBase.read();
-  const { item } = dataBase.data;
-  const prevQuantityPosts = item.length;
-  let quantityNewPosts = 0;
-  if (item.length <= 0) {
-    // add new news if there is no news in database
-    item.unshift(...data);
-    await dataBase.write();
-  } else {
-    data.filter((news) =>
-    !item.map((el) => el.title).includes(news.title)
-    ? item.unshift(news)
-    : null,
-    );
-    quantityNewPosts += (item.length - prevQuantityPosts);
-  }
-  // remove news if it is more than 100
-  for (let i = 0; i < item.length; i += 1) {
-    if (i > 100) {
-      item.splice(i);
+    const adapter = new JSONFile(pathToDataBase);
+    const dataBase = new Low(adapter);
+    await dataBase.read();
+    const { item } = dataBase.data;
+    const prevQuantityPosts = item.length;
+    let quantityNewPosts = 0;
+
+    if (item.length <= 0) {
+      // add new news if there is no news in the database
+      item.unshift(...data);
+      quantityNewPosts += data.length;
+    } else {
+      // filter out duplicates and add new news based on title or link
+      const uniqueNews = data.filter((news) => !item.some((el) => el.title.toLowerCase() === news.title.toLowerCase() || el.link === news.link));
+      item.unshift(...uniqueNews);
+      quantityNewPosts += uniqueNews.length;
     }
-  }
 
-  await dataBase.write().then(() => {
+    // remove news if it is more than 100
+    if (item.length > 100) {
+      item.splice(100);
+    }
+
+    await dataBase.write();
     console.log('New posts:', quantityNewPosts);
     Sender.addItem('Zabbix server', pathToFile.slice(0, -5), quantityNewPosts);
-    Sender.send(function(err, res) {
-      if (err) {
-        throw err;
-      }
+    await Sender.send();
 
-    });
-  });
-  return db;
+    return db;
+  } catch (error) {
+    console.error('Error:', error);
+  }
 };
 
 export default addNewsToDB;

@@ -82,6 +82,9 @@ const getNews = new Promise((resolve, reject) => {
                 $('.ad').remove();
                 $('.inline-video').remove();
                 $('.inline-image').remove();
+                $('ul').remove();
+                $('h2').remove();
+                $('.summary-box').remove();
                 const html = $('.article-body__content').html();
                 const outputimg = item.image.replace(/\/t_focal-200x100,f_auto,q_auto:best/g, "");
 

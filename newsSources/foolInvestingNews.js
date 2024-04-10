@@ -23,11 +23,14 @@ new Promise((resolve, reject) => {
         const $ = cheerio.load(el);
 
         /* It has to be change for others source */
-        if (
-          !$(el).find('a').attr('href').includes('the-ascent') &&
-          !$(el).find('a').attr('href').includes('retirement')
-        ) {
-          links.push($(el).find('a').attr('href'));
+        const hrefAttribute = $(el).find('a').attr('href');
+        if (hrefAttribute && !hrefAttribute.includes('the-ascent')) {
+          if (
+            !$(el).find('a').attr('href').includes('the-ascent') &&
+            !$(el).find('a').attr('href').includes('retirement')
+          ) {
+            links.push($(el).find('a').attr('href'));
+          }
         }
       });
 
@@ -47,7 +50,7 @@ new Promise((resolve, reject) => {
     for (const item of urls) {
       const { data } = await axios.get(item);
       const $ = cheerio.load(data);
-      const article = $('.tailwind-article-body');
+      const article = $('.article-body');
 
       const title = $('h1').text();
 
@@ -59,7 +62,6 @@ new Promise((resolve, reject) => {
       }
 
       const image = $(article).find('img').attr('src');
-
       if (checkImage(image) === 'no image') {
         continue;
       }

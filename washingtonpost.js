@@ -39,7 +39,13 @@ const gettingNews = new Promise((resolve, reject) => {
     .then(async (data) => {
         let newNews = [];
 
+        let count = 0;
+
         for (const item of data) {
+            count++;
+            if(count > 10){
+              break;
+            }
             const {data} = await axios.get(item);
             const $ = cheerio.load(data);
             const titleNews = $('h1 > span').text();
@@ -50,6 +56,7 @@ const gettingNews = new Promise((resolve, reject) => {
             $('.dn-ns').remove();
             $('.db-ns').remove();
             $('iframe').remove();
+            $('.wpds-c-SEUFi').remove();
             $('a').contents().unwrap();
             $('.hide-for-print').remove();
             $('.pb-sm.pt-lgmod').remove();
@@ -72,6 +79,10 @@ const gettingNews = new Promise((resolve, reject) => {
                         b = aaa.slice(0, i)
                     }
                 }
+
+            if (description.length < 10){
+                continue;
+            }
 
 
                 newNews.push({

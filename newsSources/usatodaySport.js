@@ -59,7 +59,12 @@ const getNews = new Promise((resolve, reject) => {
   })
   .then(async (data) => {
     // console.log(data);
+    let counter = 0;
     for (const item of data) {
+      counter++;
+      if (counter > 10){
+        break;
+      }
       if (item.link !== undefined && !item.link.includes('in-depth')) {
         const { data } = await axios.get(item.link);
         

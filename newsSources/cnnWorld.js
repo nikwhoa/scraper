@@ -77,7 +77,7 @@ new Promise((resolve, reject) => {
 
       const image = $(data).find('img.image__dam-img').attr('src');
 
-      if (checkImage(image) === 'no image') {
+      if (checkImage(image) === 'no image'  || image.slice(0, image.indexOf('g?') + 1).length <=1) {
         continue;
       }
 
@@ -98,6 +98,10 @@ new Promise((resolve, reject) => {
         a: 'unwrap',
       });
 
+      if(description.length < 10){
+        continue;
+      }
+
       news.push({
         title: title.replace(/\n/g, '').replace(/  +/g, '').replace(/ +$/, ''),
         link: item,
@@ -112,7 +116,20 @@ new Promise((resolve, reject) => {
     return news;
   })
   .then(async (news) => {
-    await addNewsToDB(news, 'cnnWorld.json');
+    // Check for duplicates based on title before adding to DB
+    const uniqueNews = [];
+    const existingTitles = new Set();
+  
+    for (const item of news) {
+      if (!existingTitles.has(item.title)) {
+        existingTitles.add(item.title);
+        uniqueNews.push(item);
+      }
+    }
+  
+    if (uniqueNews.length > 0) {
+      await addNewsToDB(uniqueNews, 'cnnWorld.json');
+    }
   })
   .then(() => {
     const xml = baseXML(

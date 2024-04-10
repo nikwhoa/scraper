@@ -1,6 +1,11 @@
 import * as cheerio from 'cheerio';
 
 const cleanHTML = (html, selectors) => {
+  // Проверяем, является ли html строкой
+  if (typeof html !== 'string') {
+    console.error('Expected a string in CleanHTML.');
+    return '';
+  }
   const $ = cheerio.load(html);
 
   Object.keys(selectors).forEach((selector) => {

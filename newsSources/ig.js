@@ -47,7 +47,13 @@ new Promise((resolve, reject) => {
     const news = [];
     const processedTitles = []; // Initialize an array to store processed titles
 
+    let count = 0;
+
     for (const item of urls) {
+      count++;
+      if(count > 10){
+        break;
+      }
       const { data } = await axios.get(item);
       const $ = cheerio.load(data);
       const article = $('.ArticleContent');
@@ -76,9 +82,10 @@ new Promise((resolve, reject) => {
         continue;
       }
 
-      $(article).find('p:contains("CNN")').remove();
-      $(article).find('p:contains("Picture of the day")').remove();
-      $(article).find('p:contains("CNN\'s")').remove();
+      $(article).find('p:contains("(Video Transcript Summary)")').remove();
+      $(article).find('p:contains("(Video summary)")').remove();
+      $(article).find('p:contains("(AI Video Summary)")').remove();
+      $(article).find('p:contains("Video Transcript")').remove();
 
       const description = cleanHTML(article.html(), {
         '.image': 'remove',
@@ -92,6 +99,11 @@ new Promise((resolve, reject) => {
         '.video-resource': 'remove',
         a: 'unwrap',
       });
+
+      const desLen = description.length;
+      if (desLen<100){
+        continue;
+      }
 
       news.push({
         title: title.replace(/\n/g, '').replace(/  +/g, '').replace(/ +$/, ''),

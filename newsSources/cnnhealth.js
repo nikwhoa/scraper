@@ -100,6 +100,7 @@ new Promise((resolve, reject) => {
         '.ad-slot': 'remove',
         '.video-resource': 'remove',
         '.factbox_inline-small__title': 'remove',
+        '.video-playlist': 'remove',
         a: 'unwrap',
       });
 
